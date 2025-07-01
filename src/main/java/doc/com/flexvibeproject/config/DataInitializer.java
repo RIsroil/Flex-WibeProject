@@ -22,18 +22,23 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        String adminEmail = "aaa";
-        String adminPassword = "aaa";
-        String username = "aaa";
+        if (userRepository.findByEmail("aaa").isEmpty()) {
+            UserEntity admin1 = new UserEntity();
+            admin1.setEmail("aaa");
+            admin1.setUsername("aaa");
+            admin1.setPassword(passwordEncoder.encode("aaa"));
+            admin1.setRole(Role.ADMIN);
+            userRepository.save(admin1);
 
-        if (userRepository.findByEmail(adminEmail).isEmpty()) {
-            UserEntity admin = new UserEntity();
-            admin.setEmail(adminEmail);
-            admin.setUsername(username);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
-            admin.setRole(Role.ADMIN);
-            userRepository.save(admin);
-            System.out.println("✔ Admin user created: " + adminEmail);
+            UserEntity admin2 = new UserEntity();
+            admin2.setEmail("creed@gmail.com");
+            admin2.setUsername("creed");
+            admin2.setPassword(passwordEncoder.encode("creeddev"));
+            admin2.setRole(Role.ADMIN);
+            userRepository.save(admin2);
+
+            System.out.println("✔ Admin user created: " + "aaa");
+            System.out.println("✔ Admin user created: " + "creed@gmail.com");
         }
     }
 }
