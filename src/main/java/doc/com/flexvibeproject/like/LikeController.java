@@ -13,8 +13,9 @@ public class LikeController {
 
     @PutMapping()
     public void like(@RequestParam(required = false) Long movieId,
+                     @RequestParam(required = false) Long episodeId,
                      @RequestParam(required = false) Long commentId,
                      Principal principal) {
-        likeService.toggleLike(movieId, commentId, principal);
+        likeService.toggleLike(movieId,episodeId, commentId,  principal);
     }
 }

@@ -44,14 +44,6 @@ public class MinioController {
         return ResponseEntity.ok(response);
     }
 
-//    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public String uploadFile(@RequestParam("file") MultipartFile file) {
-//        try {
-//            return minioService.uploadFile(file);
-//        } catch (MinioException | IOException | NoSuchAlgorithmException | InvalidKeyException e) {
-//            throw new RuntimeException("File upload failed: " + e.getMessage());
-//        }
-//    }
 
     @GetMapping(value = "/proxy/{objectName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> proxyFile(@PathVariable String objectName) {

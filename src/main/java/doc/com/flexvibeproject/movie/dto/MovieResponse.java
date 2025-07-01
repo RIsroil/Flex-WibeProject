@@ -31,5 +31,7 @@ public class MovieResponse {
     private String trailerPath;
     private boolean premiere;
     private LocalDate releaseDateLocal;
+    private int views;
+    private int likes;
 
 }

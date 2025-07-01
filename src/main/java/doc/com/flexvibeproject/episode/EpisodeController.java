@@ -1,38 +1,35 @@
 package doc.com.flexvibeproject.episode;
 
-import doc.com.flexvibeproject.episode.dto.EpisodeDto;
-import doc.com.flexvibeproject.minio.MinioService;
-import doc.com.flexvibeproject.movie.MovieService;
+import doc.com.flexvibeproject.episode.dto.EpisodeRequest;
+import doc.com.flexvibeproject.episode.dto.EpisodeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/episode")
 @RequiredArgsConstructor
 public class EpisodeController {
     private final EpisodeService episodeService;
-    private final MinioService minioService;
 
     @PostMapping
-    public void addEpisode(Long id, @RequestBody EpisodeDto request) {
+    public void addEpisode(Long id, @RequestBody EpisodeRequest request) {
         episodeService.createEpisode(id, request);
     }
 
+    @GetMapping("/by-serial/{serialId}")
+    public List<EpisodeResponse> getEpisodesBySerial(@PathVariable Long serialId) {
+        return episodeService.getEpisodesBySerialId(serialId);
+    }
+
     @GetMapping("/{id}")
-    public EpisodeDto getEpisodeById(@PathVariable Long id) {
-        //        try {
-//            if (episode.getFilePath() != null) {
-//                String fileName = minioService.extractFileName(episode.getFilePath());
-//                episode.setFilePath(minioService.getPresignedUrl(fileName));
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to generate presigned URL: " + e.getMessage());
-//        }
+    public EpisodeResponse getEpisodeById(@PathVariable Long id) {
         return episodeService.getEpisodeById(id);
     }
 
     @PatchMapping("/{id}")
-    public void updateEpisode(@PathVariable Long id, @RequestBody EpisodeDto request) {
+    public void updateEpisode(@PathVariable Long id, @RequestBody EpisodeRequest request) {
         episodeService.updateEpisode(id, request);
     }
 
@@ -41,4 +38,8 @@ public class EpisodeController {
         episodeService.deleteEpisodeById(id);
     }
 
+    @PostMapping("/view/{id}")
+    public void viewEpisode(@PathVariable Long id) {
+        episodeService.incrementViews(id);
+    }
 }

@@ -29,4 +29,10 @@ public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
 
     List<MovieEntity> findAllByReleaseYear(Integer releaseYear);
 
+    @Query("SELECT e.movieEntity.id, SUM(e.viewCount) " +
+            "FROM EpisodeEntity e " +
+            "WHERE e.movieEntity.movieRole = doc.com.flexvibeproject.movie.role.MovieRole.SERIAL " +
+            "GROUP BY e.movieEntity.id")
+    List<Object[]> getTotalViewsPerSerial();
+
 }

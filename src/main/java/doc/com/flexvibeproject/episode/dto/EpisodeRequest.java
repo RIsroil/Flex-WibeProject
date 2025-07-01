@@ -1,18 +1,15 @@
 package doc.com.flexvibeproject.episode.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Builder
-public class EpisodeDto {
+public class EpisodeRequest {
     private String title;
     private String filePath;
     private String duration;
     private Integer season;
     private Integer episodeNumber;
-    private int viewCount;
-    private int likeCount;
+
 }

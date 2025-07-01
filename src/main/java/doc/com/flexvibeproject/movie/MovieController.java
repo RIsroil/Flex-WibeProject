@@ -55,10 +55,10 @@ public class MovieController {
         return movieService.getById(id);
     }
 
-//    @DeleteMapping("/{id}")
-//    public void deleteMovieById(@PathVariable Long id) {
-//        movieService.deleteMovieById(id);
-//    }
+    @DeleteMapping("/{id}")
+    public void deleteMovieById(@PathVariable Long id) {
+        movieService.deleteMovieById(id);
+    }
 
     @GetMapping
     public List<MovieResponse> getAllMovies() {

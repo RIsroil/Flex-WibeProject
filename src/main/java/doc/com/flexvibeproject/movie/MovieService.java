@@ -104,43 +104,13 @@ public class MovieService {
         return mapToResponse(movie);
     }
 
-//    @Transactional
-//    public void deleteMovieById(Long movieId) {
-//        MovieEntity movie = movieRepository.findById(movieId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
-//
-//        try {
-//            minioService.deleteFileByFullPath(movie.getFilePath());
-//            minioService.deleteFileByFullPath(movie.getTrailerPath());
-//            minioService.deleteFileByFullPath(movie.getImageUrl());
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to delete movie files from storage");
-//        }
-//
-//        likeRepository.deleteAllByMovie(movie);
-//
-//        List<CommentEntity> comments = commentRepository.findAllByMovieEntity(movie);
-//        if (comments != null && !comments.isEmpty()) {
-//            for (CommentEntity comment : comments) {
-//                likeRepository.deleteAllByComment(comment);
-//            }
-//            commentRepository.deleteAll(comments);
-//        }
-//
-//        if (movie.getMovieRole() == MovieRole.SERIAL) {
-//            List<EpisodeEntity> episodes = episodeRepository.findAllByMovieEntity(movie);
-//            for (EpisodeEntity episode : episodes) {
-//                try {
-//                    minioService.deleteFileByFullPath(episode.getFilePath());
-//                } catch (Exception e) {
-//                    throw new RuntimeException( "Failed to delete episode file from MinIO: {}");
-//                }
-//            }
-//            episodeRepository.deleteAll(episodes);
-//        }
-//
-//        movieRepository.delete(movie);
-//    }
+    @Transactional
+    public void deleteMovieById(Long movieId) {
+        MovieEntity movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
+
+        movieRepository.delete(movie);
+    }
 
     public List<MovieResponse> getAllMovies() {
         return movieRepository.findAll().stream()
@@ -285,13 +255,27 @@ public class MovieService {
     }
 
     private MovieResponse mapToResponse(MovieEntity movie) {
+        int views =  movie.getMovieRole() == MovieRole.SERIAL
+                ? episodeRepository.findAllByMovieEntity(movie)
+                .stream()
+                .mapToInt(EpisodeEntity::getViewCount)
+                .sum()
+                : movie.getViewCount();
+
+        int likes =  movie.getMovieRole() == MovieRole.SERIAL
+                ? episodeRepository.findAllByMovieEntity(movie)
+                .stream()
+                .mapToInt(EpisodeEntity::getLikeCount)
+                .sum()
+                : movie.getLikeCount();
+
         return MovieResponse.builder()
                 .id(movie.getId())
                 .title(movie.getTitle())
                 .description(movie.getDescription())
-                .filePath(movie.getFilePath()) // 🎥 presigned URL
-                .trailerPath(movie.getTrailerPath()) // 🎞️ presigned URL
-                .imageUrl(movie.getImageUrl()) // 🖼️ optional
+                .filePath(movie.getFilePath())
+                .trailerPath(movie.getTrailerPath())
+                .imageUrl(movie.getImageUrl())
                 .genres(movie.getGenres())
                 .country(movie.getCountry())
                 .releaseYear(movie.getReleaseYear())
@@ -301,6 +285,8 @@ public class MovieService {
                 .premiere(movie.isPremiere())
                 .releaseDateLocal(movie.getReleaseDateLocal())
                 .movieRole(movie.getMovieRole())
+                .views(views)
+                .likes(likes)
                 .build();
     }
 

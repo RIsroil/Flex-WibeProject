@@ -37,8 +37,4 @@ public class CommentEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-
-    public void incrementLikeCount(){
-        this.likeCount++;
-    }
 }

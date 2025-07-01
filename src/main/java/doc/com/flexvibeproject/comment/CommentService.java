@@ -54,7 +54,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
         if (!comment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new ResourceNotFoundException("You can only update your own comments");
+            throw new IllegalArgumentException("You can only update your own comments");
         }
 
         comment.setComment(request.getComment());
@@ -83,7 +83,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
         if (!comment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-            throw new ResourceNotFoundException("You can only delete your own comments");
+            throw new IllegalArgumentException("You can only delete your own comments");
         }
 
 

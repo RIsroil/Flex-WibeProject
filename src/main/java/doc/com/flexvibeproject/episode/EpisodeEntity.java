@@ -29,19 +29,6 @@ public class EpisodeEntity {
     private int viewCount = 0;
     private int likeCount = 0;
 
-    public void incrementViewCount(){
-        this.viewCount++;
-    }
-    public void incrementLikeCount(){
-        this.likeCount++;
-    }
-    public void decrementViewCount(){
-        this.viewCount--;
-    }
-    public void decrementLikeCount(){
-        this.likeCount--;
-    }
-
     @ManyToOne
     @JoinColumn(name = "movie_id")
     @JsonBackReference

@@ -1,6 +1,7 @@
 package doc.com.flexvibeproject.like;
 
 import doc.com.flexvibeproject.comment.CommentEntity;
+import doc.com.flexvibeproject.episode.EpisodeEntity;
 import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.user.UserEntity;
 import jakarta.persistence.*;
@@ -29,4 +30,8 @@ public class LikeEntity {
     @ManyToOne
     @JoinColumn(name = "comment_id")
     private CommentEntity comment;
+
+    @ManyToOne
+    @JoinColumn(name = "episode_id")
+    private EpisodeEntity episode;
 }
