@@ -17,7 +17,7 @@ import org.springframework.http.MediaType;
 import java.util.List;
 
 @RestController
-@RequestMapping("/movie")
+@RequestMapping("api/movie")
 @RequiredArgsConstructor
 public class MovieController {
     private final MovieService movieService;
@@ -36,24 +36,23 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public MovieResponse getByMovieId(@PathVariable Long id) {
-        MovieResponse movie = movieService.getById(id);
-        try {
-            if (movie.getFilePath() != null) {
-                String fileName = minioService.extractFileName(movie.getFilePath());
-                movie.setFilePath(minioService.getPresignedUrl(fileName));
-            }
-            if (movie.getTrailerPath() != null) {
-                String fileName = minioService.extractFileName(movie.getTrailerPath());
-                movie.setTrailerPath(minioService.getPresignedUrl(fileName));
-            }
-            if (movie.getImageUrl() != null) {
-                String fileName = minioService.extractFileName(movie.getImageUrl());
-                movie.setImageUrl(minioService.getPresignedUrl(fileName));
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate presigned URLs: " + e.getMessage());
-        }
-        return movie;
+        //        try {
+//            if (movie.getFilePath() != null) {
+//                String fileName = minioService.extractFileName(movie.getFilePath());
+//                movie.setFilePath(minioService.getPresignedUrl(fileName));
+//            }
+//            if (movie.getTrailerPath() != null) {
+//                String fileName = minioService.extractFileName(movie.getTrailerPath());
+//                movie.setTrailerPath(minioService.getPresignedUrl(fileName));
+//            }
+//            if (movie.getImageUrl() != null) {
+//                String fileName = minioService.extractFileName(movie.getImageUrl());
+//                movie.setImageUrl(minioService.getPresignedUrl(fileName));
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException("Failed to generate presigned URLs: " + e.getMessage());
+//        }
+        return movieService.getById(id);
     }
 
 //    @DeleteMapping("/{id}")

@@ -58,6 +58,8 @@ public class EpisodeService {
                 .duration(episode.getDuration())
                 .season(episode.getSeason())
                 .episodeNumber(episode.getEpisodeNumber())
+                .viewCount(episode.getViewCount())
+                .likeCount(episode.getLikeCount())
                 .build();
     }
 

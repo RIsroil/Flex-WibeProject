@@ -36,46 +36,46 @@ public class MinioService {
         return endpoint + "/" + bucketName + "/" + fileName;
     }
 
-    public String getPresignedUrl(String fileName) throws Exception {
-        try {
-            minioClient.statObject(
-                    StatObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(fileName)
-                            .build()
-            );
-        } catch (MinioException e) {
-            log.error("Object not found: {}", fileName, e);
-            throw new IllegalArgumentException("Object not found: " + fileName);
-        }
+//    public String getPresignedUrl(String fileName) throws Exception {
+//        try {
+//            minioClient.statObject(
+//                    StatObjectArgs.builder()
+//                            .bucket(bucketName)
+//                            .object(fileName)
+//                            .build()
+//            );
+//        } catch (MinioException e) {
+//            log.error("Object not found: {}", fileName, e);
+//            throw new IllegalArgumentException("Object not found: " + fileName);
+//        }
+//
+//        String publicUrl = publicMinioClient.getPresignedObjectUrl(
+//                GetPresignedObjectUrlArgs.builder()
+//                        .method(Method.GET)
+//                        .bucket(bucketName)
+//                        .object(fileName)
+//                        .expiry(60 * 60) // 1 hour
+//                        .build()
+//        );
+//
+//        log.info("Generated presigned URL: {}", publicUrl);
+//        return publicUrl;
+//    }
+//
+//    public String extractFileName(String fullUrl) {
+//        if (fullUrl == null || fullUrl.isBlank()) {
+//            throw new IllegalArgumentException("File URL cannot be null or empty");
+//        }
+//
+//        String baseUrl = getPermanentUrl("");
+//        if (!fullUrl.startsWith(baseUrl)) {
+//            throw new IllegalArgumentException("Invalid file URL: " + fullUrl);
+//        }
+//
+//        return fullUrl.substring(baseUrl.length());
+//    }
 
-        String publicUrl = publicMinioClient.getPresignedObjectUrl(
-                GetPresignedObjectUrlArgs.builder()
-                        .method(Method.GET)
-                        .bucket(bucketName)
-                        .object(fileName)
-                        .expiry(60 * 60) // 1 hour
-                        .build()
-        );
-
-        log.info("Generated presigned URL: {}", publicUrl);
-        return publicUrl;
-    }
-
-    public String extractFileName(String fullUrl) {
-        if (fullUrl == null || fullUrl.isBlank()) {
-            throw new IllegalArgumentException("File URL cannot be null or empty");
-        }
-
-        String baseUrl = getPermanentUrl("");
-        if (!fullUrl.startsWith(baseUrl)) {
-            throw new IllegalArgumentException("Invalid file URL: " + fullUrl);
-        }
-
-        return fullUrl.substring(baseUrl.length());
-    }
-
-    public ResponseEntity<?> uploadCertificate(MultipartFile file) {
+    public ResponseEntity<?> uploadVideo(MultipartFile file) {
         try {
             String fileUrl = uploadFile(file);
             return ResponseEntity.ok().body(fileUrl);

@@ -90,7 +90,7 @@ public class AuthService {
 
         UserEntity user = userOptional.get();
         String resetToken = jwtService.generateSimpleToken(user);
-        String resetLink = "http://217.114.3.161/reset-password?token=" + resetToken;
+        String resetLink = "http://82.202.131.45/reset-password?token=" + resetToken;
 
         emailService.sendResetLink(user.getEmail(), resetLink);
 

@@ -76,8 +76,8 @@ public class MinioController {
     }
 
     @PostMapping(path = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> uploadCertificate(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.ok(minioService.uploadCertificate(file));
+    public ResponseEntity<?> uploadVideo(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(minioService.uploadVideo(file));
     }
 
     @GetMapping(value = "/stream/{objectName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)

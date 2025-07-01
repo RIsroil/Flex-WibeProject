@@ -276,8 +276,11 @@ public class MovieService {
     public void incrementViews(Long movieId) {
         MovieEntity movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + movieId));
-
-        movie.setViewCount(movie.getViewCount() + 1);
+        if (movie.getMovieRole() == MovieRole.SERIAL) {
+            throw new ResourceNotFoundException("You can not post view for Serial: " + movieId);
+        }else{
+            movie.setViewCount(movie.getViewCount() + 1);
+        }
         movieRepository.save(movie);
     }
 

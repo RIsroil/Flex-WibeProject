@@ -13,4 +13,6 @@ public class EpisodeDto {
     private String duration;
     private Integer season;
     private Integer episodeNumber;
+    private int viewCount;
+    private int likeCount;
 }
