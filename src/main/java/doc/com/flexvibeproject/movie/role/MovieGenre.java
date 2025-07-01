@@ -1,0 +1,79 @@
+package doc.com.flexvibeproject.movie.role;
+
+public enum MovieGenre {
+    // 🎬 FILM & SERIAL GENRES
+    ACTION,
+    ADVENTURE,
+    COMEDY,
+    DRAMA,
+    HORROR,
+    THRILLER,
+    SCIENCE_FICTION,     // = Sci-Fi
+    FANTASY,
+    CRIME,
+    MYSTERY,
+    ROMANCE,
+    FAMILY,
+    WAR,
+    HISTORY,
+    ANIMATION,
+    BIOGRAPHY,
+    MUSICAL,
+    DOCUMENTARY,
+    SUPERHERO,
+    SPORT,
+    WESTERN,
+    DETECTIVE,
+    POLITICAL,
+    PSYCHOLOGICAL,
+    EROTIC,
+    TRAGEDY,
+    SLICE_OF_LIFE,
+
+    // 📺 SERIAL SPECIFIC
+    SITCOM,
+    TEEN,
+    SOAP_OPERA,
+    PERIOD_DRAMA,
+    K_DRAMA,
+    TURKISH_DRAMA,
+    ANTHOLOGY,
+
+    // 🎤 CONCERT / SHOW / MUSIC
+    LIVE_CONCERT,
+    MUSIC_SHOW,
+    POP,
+    ROCK,
+    CLASSICAL,
+    RAP,
+    HIP_HOP,
+    EDM,
+    JAZZ,
+    FOLK,
+    TRADITIONAL,
+    DJ_SET,
+    OPERA,
+
+    // 🌍 CULTURAL / ETHNIC / LANGUAGE-BASED
+    BOLLYWOOD,
+    HOLLYWOOD,
+    K_POP,
+    UZBEK_DRAMA,
+    UZBEK_COMEDY,
+    TURKISH_SERIES,
+    KOREAN_SERIES,
+
+    // ⚠ SPECIAL / OTHERS
+    RELIGIOUS,
+    KIDS,
+    EDUCATIONAL,
+    REALITY,
+    TALK_SHOW,
+    GAME_SHOW,
+    NEWS,
+    TRAVEL,
+    COOKING,
+    LIFESTYLE,
+    EXPERIMENTAL;
+
+}

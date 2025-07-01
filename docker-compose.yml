@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  flexvibe-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flexvibe-app
+    image: flexvibe-backend:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://flexvibe-db:5432/flexvibe
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      MINIO_ENDPOINT: http://minio-flex:9000
+      MINIO_PUBLIC_ENDPOINT: http://82.202.131.45:9102
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET_NAME: flex-bucket
+    depends_on:
+      - flexvibe-db
+      - minio-flex
+    networks:
+      - flexvibe-network
+    volumes:
+      - ./logs:/app/logs
+
+  flexvibe-db:
+    image: postgres:16-alpine
+    container_name: flexvibe-db
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: flexvibe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - flexvibe_data:/var/lib/postgresql/data
+    networks:
+      - flexvibe-network
+
+  minio-flex:
+    image: minio/minio:latest
+    container_name: minio-flex
+    restart: always
+    command: server --console-address ":9001" /data
+    ports:
+      - "9102:9000"
+      - "9103:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_flex_data:/data
+    networks:
+      - flexvibe-network
+
+volumes:
+  flexvibe_data:
+  minio_flex_data:
+
+networks:
+  flexvibe-network:
+    driver: bridge
