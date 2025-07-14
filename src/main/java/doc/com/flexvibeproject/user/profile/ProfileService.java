@@ -6,6 +6,7 @@ import doc.com.flexvibeproject.user.UserEntity;
 import doc.com.flexvibeproject.user.UserRepository;
 import doc.com.flexvibeproject.user.auth.AuthHelperService;
 import doc.com.flexvibeproject.user.profile.dto.ChangePasswordRequest;
+import doc.com.flexvibeproject.user.profile.dto.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,5 +34,15 @@ public class ProfileService {
         userRepository.save(user);
 
         return ResponseEntity.ok("Parol muvaffaqiyatli yangilandi");
+    }
+
+    public UserProfileResponse me(Principal principal) {
+        UserEntity user = authHelperService.getUserFromPrincipal(principal);
+        return new UserProfileResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole()
+        );
     }
 }

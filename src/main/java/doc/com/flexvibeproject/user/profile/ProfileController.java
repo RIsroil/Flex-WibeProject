@@ -1,6 +1,7 @@
 package doc.com.flexvibeproject.user.profile;
 
 import doc.com.flexvibeproject.user.profile.dto.ChangePasswordRequest;
+import doc.com.flexvibeproject.user.profile.dto.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,5 +18,10 @@ public class ProfileController {
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(Principal principal, @RequestBody ChangePasswordRequest request) {
         return ResponseEntity.ok(profileService.changePassword(principal, request));
+    }
+
+    @GetMapping("/me")
+    public UserProfileResponse me(Principal principal) {
+        return profileService.me(principal);
     }
 }
