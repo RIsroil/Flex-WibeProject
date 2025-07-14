@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                 "/api/auth/forgot-password", "/api/auth/reset-password",
-                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui/**", "/v3/api-docs/**", "/api/auth/me").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/movie/**", "/api/episode/**", "/api/comment/**",
                                 "/api/minio/movie/**", "/api/minio/stream/**", "/api/minio/proxy/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasRole("USER")
