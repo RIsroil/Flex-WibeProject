@@ -9,11 +9,11 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@OpenAPIDefinition(
-        servers = {
-                @Server(url = "https://be-dev.uz", description = "Production Server")
-        }
-)
+//@OpenAPIDefinition(
+//        servers = {
+//                @Server(url = "https://be-dev.uz", description = "Production Server")
+//        }
+//)
 @Configuration
 public class SwaggerConfig {
 
