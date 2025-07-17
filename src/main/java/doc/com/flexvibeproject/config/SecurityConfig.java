@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.security.config.Customizer;
+
 import java.util.List;
 
 @Configuration
@@ -41,26 +42,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(Customizer.withDefaults()) // <<< ADD THIS LINE
+                .cors(Customizer.withDefaults()) // Enable CORS
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, 
+                        .requestMatchers(HttpMethod.GET,
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/api/auth/me"
                         ).permitAll()
-
-                        .requestMatchers(HttpMethod.POST, 
+                        .requestMatchers(HttpMethod.POST,
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/forgot-password",
-                                "/api/auth/reset-password","api/save-movie/**"
-                            ).permitAll()
-        
-                        .requestMatchers(HttpMethod.GET,"api/save-movie/**", "/api/movie/**", "/api/episode/**", "/api/comment/**",
-                                "/api/minio/movie/**", "/api/minio/stream/**", "/api/minio/proxy/**").permitAll()
+                                "/api/auth/reset-password",
+                                "/api/save-movie/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/save-movie/**",
+                                "/api/movie/**",
+                                "/api/episode/**",
+                                "/api/comment/**",
+                                "/api/minio/movie/**",
+                                "/api/minio/stream/**",
+                                "/api/minio/proxy/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/comment/**", "/api/like/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasRole("USER")
@@ -98,9 +105,11 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:4200","https://flixvibe.vercel.app"));
+        // Add https://be-dev.uz to allowed origins
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://flixvibe.vercel.app", "https://be-dev.uz"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setExposedHeaders(List.of("Authorization")); // Expose Authorization header for JWT
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
