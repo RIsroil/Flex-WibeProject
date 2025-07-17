@@ -12,13 +12,12 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AuthHelperService {
 
-    private final JwtService jwtService;
     private final UserRepository userRepository;
 
     public UserEntity getUserFromPrincipal(Principal principal) {
         String username = principal.getName();
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User topilmadi"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
 

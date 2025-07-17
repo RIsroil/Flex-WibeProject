@@ -56,10 +56,10 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/refresh",
                                 "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
+                                "/api/auth/reset-password","api/save-movie/**"
                             ).permitAll()
         
-                        .requestMatchers(HttpMethod.GET, "/api/movie/**", "/api/episode/**", "/api/comment/**",
+                        .requestMatchers(HttpMethod.GET,"api/save-movie/**", "/api/movie/**", "/api/episode/**", "/api/comment/**",
                                 "/api/minio/movie/**", "/api/minio/stream/**", "/api/minio/proxy/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT, "/api/comment/**", "/api/like/**").hasRole("USER")
