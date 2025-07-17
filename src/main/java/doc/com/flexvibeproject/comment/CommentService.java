@@ -94,6 +94,7 @@ public class CommentService {
 
     private CommentResponse mapToResponse(CommentEntity commentEntity) {
         return CommentResponse.builder()
+                .id(commentEntity.getId())
                 .movieId(commentEntity.getMovieEntity() != null ? commentEntity.getMovieEntity().getId() : null)
                 .comment(commentEntity.getComment())
                 .username(commentEntity.getUser().getUsername())
