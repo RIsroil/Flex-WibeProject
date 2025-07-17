@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-
 @Slf4j
 @Getter
 @Setter
@@ -30,16 +29,12 @@ public class MinioConfig {
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint)
+                .endpoint(endpoint) // Use internal endpoint (http://minio-flex:9000)
                 .credentials(accessKey, secretKey)
                 .build();
     }
 
-    @Bean
-    public MinioClient publicMinioClient() {
-        return MinioClient.builder()
-                .endpoint(publicEndpoint)
-                .credentials(accessKey, secretKey)
-                .build();
+    public String getPublicEndpoint() {
+        return publicEndpoint; // Returns https://be-dev.uz
     }
 }

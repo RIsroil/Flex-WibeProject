@@ -1,6 +1,5 @@
 package doc.com.flexvibeproject.minio;
 
-
 import doc.com.flexvibeproject.exception.ResourceNotFoundException;
 import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.movie.MovieRepository;
@@ -26,7 +25,6 @@ public class MinioController {
 
     private final MovieRepository movieRepository;
     private final MinioService minioService;
-    private final MinioAdapter minioAdapter;
     private final MinioConfig minioConfig;
     private final MinioClient minioClient;
 
@@ -43,7 +41,6 @@ public class MinioController {
 
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping(value = "/proxy/{objectName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> proxyFile(@PathVariable String objectName) {

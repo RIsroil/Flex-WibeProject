@@ -1,8 +1,8 @@
 package doc.com.flexvibeproject.minio;
 
-import io.minio.*;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.errors.MinioException;
-import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,8 @@ public class MinioService {
         if (endpoint.endsWith("/")) {
             endpoint = endpoint.substring(0, endpoint.length() - 1);
         }
-        return endpoint + "/" + bucketName + "/" + fileName;
+        // Append /minio/ to match Nginx proxy configuration
+        return endpoint + "/minio/" + bucketName + "/" + fileName;
     }
 
     public ResponseEntity<?> uploadVideo(MultipartFile file) {
