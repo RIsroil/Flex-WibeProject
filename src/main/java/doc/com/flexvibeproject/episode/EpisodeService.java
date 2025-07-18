@@ -82,6 +82,7 @@ public class EpisodeService {
         if (existing != null && !existing.getId().equals(episode.getId())) {
             throw new DuplicateResourceException("Title already exists");
         }
+        if (request.getTitle() != null) {episode.setTitle(request.getTitle());}
         if (request.getFilePath() != null) {episode.setFilePath(request.getFilePath());}
         if (request.getSeason() != null) {episode.setSeason(request.getSeason());}
         if (request.getEpisodeNumber() != null) {episode.setEpisodeNumber(request.getEpisodeNumber());}
