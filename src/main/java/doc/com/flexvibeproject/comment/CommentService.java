@@ -25,22 +25,29 @@ public class CommentService {
     private final AuthHelperService authHelperService;
     private final LikeRepository likeRepository;
 
+
     public void postComment(Principal principal, Long id, CommentRequest request, CommentRole commentRole) {
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
         MovieEntity movie = null;
+        CommentEntity parentComment = null;
 
         if (commentRole == CommentRole.MOVIE) {
             movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+        } else if (commentRole == CommentRole.REPLY) {
+            parentComment = commentRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+            movie = parentComment.getMovieEntity(); // Inherit movie from parent comment
         }
 
         CommentEntity newComment = CommentEntity.builder()
                 .comment(request.getComment())
                 .user(user)
+                .movieEntity(movie)
+                .parentComment(parentComment)
                 .commentRole(commentRole)
                 .commentDate(LocalDateTime.now())
-                .movieEntity(movie)
-                .user(user)
+                .likeCount(0)
                 .build();
         commentRepository.save(newComment);
     }

@@ -16,5 +16,6 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     int countAllByMovieEntity(MovieEntity movie);
 
-    int countAllByParentComment(CommentEntity comment);
+    @Query("SELECT COUNT(c) FROM CommentEntity c WHERE c.parentComment = :comment")
+    int countAllByParentComment(@Param("comment") CommentEntity comment);
 }
