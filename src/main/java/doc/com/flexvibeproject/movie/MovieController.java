@@ -2,13 +2,14 @@ package doc.com.flexvibeproject.movie;
 
 import doc.com.flexvibeproject.comment.CommentRole;
 import doc.com.flexvibeproject.minio.MinioService;
-import doc.com.flexvibeproject.movie.dto.MovieRequest;
-import doc.com.flexvibeproject.movie.dto.MovieResponse;
-import doc.com.flexvibeproject.movie.dto.MovieUpdateRequest;
+import doc.com.flexvibeproject.movie.dto.*;
 import doc.com.flexvibeproject.movie.role.LanguageType;
 import doc.com.flexvibeproject.movie.role.MovieGenre;
 import doc.com.flexvibeproject.movie.role.MovieRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,22 +37,6 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public MovieResponse getByMovieId(@PathVariable Long id) {
-        //        try {
-//            if (movie.getFilePath() != null) {
-//                String fileName = minioService.extractFileName(movie.getFilePath());
-//                movie.setFilePath(minioService.getPresignedUrl(fileName));
-//            }
-//            if (movie.getTrailerPath() != null) {
-//                String fileName = minioService.extractFileName(movie.getTrailerPath());
-//                movie.setTrailerPath(minioService.getPresignedUrl(fileName));
-//            }
-//            if (movie.getImageUrl() != null) {
-//                String fileName = minioService.extractFileName(movie.getImageUrl());
-//                movie.setImageUrl(minioService.getPresignedUrl(fileName));
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to generate presigned URLs: " + e.getMessage());
-//        }
         return movieService.getById(id);
     }
 
@@ -63,6 +48,12 @@ public class MovieController {
     @GetMapping
     public List<MovieResponse> getAllMovies() {
         return movieService.getAllMovies();
+    }
+
+    @GetMapping("/page")
+    public Page<MovieResponse> getAllMovies(
+            @PageableDefault(page = 0, size = 20, sort = {"release_date_local"}) Pageable pageable) {
+        return movieService.getAllMoviesByPage(pageable);
     }
 
     @GetMapping("/by-role")
@@ -126,5 +117,23 @@ public class MovieController {
         }
 
         return fullUrl.substring(baseUrl.length());
+    }
+
+    @GetMapping("/views")
+    public ResponseEntity<Integer> getViewsCount(@RequestParam(name = "isLastMonth", defaultValue = "false") boolean isLastMonth) {
+        int viewsCount = movieService.getViewsCount(isLastMonth);
+        return ResponseEntity.ok(viewsCount);
+    }
+
+    @GetMapping("/counts/last-month")
+    public ResponseEntity<ContentCountsResponse> getContentCountsLastMonth() {
+        ContentCountsResponse response = movieService.getContentCountsLastMonth();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/counts/all")
+    public ResponseEntity<TotalContentCountsResponse> getTotalContentCounts() {
+        TotalContentCountsResponse response = movieService.getTotalContentCounts();
+        return ResponseEntity.ok(response);
     }
 }

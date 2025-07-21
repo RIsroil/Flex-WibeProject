@@ -5,6 +5,8 @@ import doc.com.flexvibeproject.movie.MovieEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -28,6 +30,7 @@ public class EpisodeEntity {
     private Integer episodeNumber;
     private int viewCount = 0;
     private int likeCount = 0;
+    private LocalDateTime createdDate;
 
     @ManyToOne
     @JoinColumn(name = "movie_id")
