@@ -4,7 +4,6 @@ import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity

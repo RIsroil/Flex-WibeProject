@@ -5,7 +5,9 @@ import doc.com.flexvibeproject.movie.role.MovieGenre;
 import doc.com.flexvibeproject.movie.role.MovieRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
@@ -34,5 +36,17 @@ public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
             "WHERE e.movieEntity.movieRole = doc.com.flexvibeproject.movie.role.MovieRole.SERIAL " +
             "GROUP BY e.movieEntity.id")
     List<Object[]> getTotalViewsPerSerial();
+
+    @Query("SELECT COALESCE(SUM(m.viewCount), 0) FROM MovieEntity m WHERE m.movieRole = :role")
+    int sumViewCountByMovieRole(@Param("role") MovieRole role);
+
+    @Query("SELECT COALESCE(SUM(m.viewCount), 0) FROM MovieEntity m WHERE m.movieRole = :role AND m.releaseDateLocal >= :since")
+    int sumViewCountByMovieRoleAndLastMonth(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
+
+    int countByMovieRoleAndCreatedAtAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
+
+    List<MovieEntity> findByMovieRoleAndCreatedAtAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
+
+    int countByMovieRole(@Param("role") MovieRole role);
 
 }

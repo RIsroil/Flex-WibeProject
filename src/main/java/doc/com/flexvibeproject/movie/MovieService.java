@@ -10,9 +10,7 @@ import doc.com.flexvibeproject.exception.ResourceNotFoundException;
 import doc.com.flexvibeproject.like.LikeRepository;
 import doc.com.flexvibeproject.minio.MinioConfig;
 import doc.com.flexvibeproject.minio.MinioService;
-import doc.com.flexvibeproject.movie.dto.MovieRequest;
-import doc.com.flexvibeproject.movie.dto.MovieResponse;
-import doc.com.flexvibeproject.movie.dto.MovieUpdateRequest;
+import doc.com.flexvibeproject.movie.dto.*;
 import doc.com.flexvibeproject.movie.role.CountryType;
 import doc.com.flexvibeproject.movie.role.LanguageType;
 import doc.com.flexvibeproject.movie.role.MovieGenre;
@@ -22,6 +20,8 @@ import io.minio.errors.MinioException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,11 +37,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MovieService {
     private final MovieRepository movieRepository;
-    private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
     private final EpisodeRepository episodeRepository;
-    private final MinioService minioService;
-    private final MinioConfig minioConfig;
+
 
     public void createMovie(MovieRequest request) {
         if (request.getTitle() == null || request.getTitle().isBlank()) {
@@ -116,6 +114,11 @@ public class MovieService {
         return movieRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    public Page<MovieResponse> getAllMoviesByPage(Pageable pageable) {
+        return movieRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     public List<MovieResponse> getMoviesByRole(MovieRole role){
@@ -290,5 +293,41 @@ public class MovieService {
                 .build();
     }
 
+    public int getViewsCount(boolean isLastMonth) {
+        if (isLastMonth) {
+            LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+            return movieRepository.sumViewCountByMovieRoleAndLastMonth(MovieRole.FILM, oneMonthAgo);
+        } else {
+            return movieRepository.sumViewCountByMovieRole(MovieRole.FILM);
+        }
+    }
+    public ContentCountsResponse getContentCountsLastMonth() {
+        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
+        // Count films and concerts
+        int filmCount = movieRepository.countByMovieRoleAndCreatedAtAfter(MovieRole.FILM, oneMonthAgo);
+        int concertCount = movieRepository.countByMovieRoleAndCreatedAtAfter(MovieRole.CONCERT, oneMonthAgo);
+
+        // Count serials and their episodes
+        List<MovieEntity> serials = movieRepository.findByMovieRoleAndCreatedAtAfter(MovieRole.SERIAL, oneMonthAgo);
+        List<SerialCountResponse> serialCounts = serials.stream().map(serial -> {
+            int episodeCount = episodeRepository.countByMovieEntityAndCreatedAtAfter(serial, oneMonthAgo);
+            return new SerialCountResponse(serial.getId(), serial.getTitle(), episodeCount);
+        }).collect(Collectors.toList());
+
+        return new ContentCountsResponse(filmCount, serialCounts, concertCount);
+    }
+
+    public TotalContentCountsResponse getTotalContentCounts() {
+        int filmCount = movieRepository.countByMovieRole(MovieRole.FILM);
+        int concertCount = movieRepository.countByMovieRole(MovieRole.CONCERT);
+        int serialCount = movieRepository.countByMovieRole(MovieRole.SERIAL);
+        int episodeCount = episodeRepository.countByMovieEntityMovieRole(MovieRole.SERIAL);
+
+        List<SerialSummaryResponse> serialSummary = Collections.singletonList(
+                new SerialSummaryResponse(serialCount, episodeCount)
+        );
+
+        return new TotalContentCountsResponse(filmCount, serialSummary, concertCount);
+    }
 }

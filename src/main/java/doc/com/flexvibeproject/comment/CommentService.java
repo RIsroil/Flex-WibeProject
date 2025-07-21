@@ -23,7 +23,6 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MovieRepository movieRepository;
     private final AuthHelperService authHelperService;
-    private final LikeService likeService;
     private final LikeRepository likeRepository;
 
     public void postComment(Principal principal, Long id, CommentRequest request, CommentRole commentRole) {
@@ -41,9 +40,8 @@ public class CommentService {
                 .commentRole(commentRole)
                 .commentDate(LocalDateTime.now())
                 .movieEntity(movie)
-                .user(user)  // ← agar UserEntity user commentga saqlanayotgan bo‘lsa (saqlanadi).
+                .user(user)
                 .build();
-
         commentRepository.save(newComment);
     }
 
@@ -56,7 +54,6 @@ public class CommentService {
         if (!comment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("You can only update your own comments");
         }
-
         comment.setComment(request.getComment());
         commentRepository.save(comment);
     }
@@ -69,7 +66,6 @@ public class CommentService {
         }else {
             MovieEntity movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-
             return commentRepository.findAllByMovieComments(movie.getId()).stream()
                     .map(this::mapToResponse)
                     .toList();
@@ -85,11 +81,22 @@ public class CommentService {
         if (!comment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("You can only delete your own comments");
         }
-
-
         likeRepository.deleteAllByComment(comment);
-
         commentRepository.delete(comment);
+    }
+
+    public int getCommentCount(Long movieId, Long commentId) {
+        if (movieId != null) {
+            MovieEntity movie = movieRepository.findById(movieId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+            // Count all comments and their replies for the movie
+            return commentRepository.countAllByMovieEntity(movie);
+        } else {
+            CommentEntity comment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
+            // Count all replies for the specific comment
+            return commentRepository.countAllByParentComment(comment);
+        }
     }
 
     private CommentResponse mapToResponse(CommentEntity commentEntity) {
@@ -102,4 +109,5 @@ public class CommentService {
                 .commentDate(commentEntity.getCommentDate())
                 .build();
     }
+
 }
