@@ -4,7 +4,6 @@ import doc.com.flexvibeproject.comment.dto.CommentRequest;
 import doc.com.flexvibeproject.comment.dto.CommentResponse;
 import doc.com.flexvibeproject.exception.ResourceNotFoundException;
 import doc.com.flexvibeproject.like.LikeRepository;
-import doc.com.flexvibeproject.like.LikeService;
 import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.movie.MovieRepository;
 import doc.com.flexvibeproject.user.Role;
@@ -25,7 +24,6 @@ public class CommentService {
     private final AuthHelperService authHelperService;
     private final LikeRepository likeRepository;
 
-
     public void postComment(Principal principal, Long id, CommentRequest request, CommentRole commentRole) {
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
         MovieEntity movie = null;
@@ -38,6 +36,9 @@ public class CommentService {
             parentComment = commentRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
             movie = parentComment.getMovieEntity(); // Inherit movie from parent comment
+            if (movie == null || parentComment.getCommentRole() != CommentRole.MOVIE) {
+                throw new IllegalArgumentException("Replies must be associated with a movie comment");
+            }
         }
 
         CommentEntity newComment = CommentEntity.builder()
@@ -52,7 +53,7 @@ public class CommentService {
         commentRepository.save(newComment);
     }
 
-    public void updateComment(Principal principal, Long id, CommentRequest request){
+    public void updateComment(Principal principal, Long id, CommentRequest request) {
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
 
         CommentEntity comment = commentRepository.findById(id)
@@ -65,12 +66,12 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public List<CommentResponse> getCommentByMovieIdOrWebsite(Long id){
-        if(id == null) {
+    public List<CommentResponse> getCommentByMovieIdOrWebsite(Long id) {
+        if (id == null) {
             return commentRepository.findAllByWebsiteComments().stream()
                     .map(this::mapToResponse)
                     .toList();
-        }else {
+        } else {
             MovieEntity movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
             return commentRepository.findAllByMovieComments(movie.getId()).stream()
@@ -80,7 +81,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteCommentById(Principal principal, Long id){
+    public void deleteCommentById(Principal principal, Long id) {
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
         CommentEntity comment = commentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
@@ -96,12 +97,10 @@ public class CommentService {
         if (movieId != null) {
             MovieEntity movie = movieRepository.findById(movieId)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-            // Count all comments and their replies for the movie
             return commentRepository.countAllByMovieEntity(movie);
         } else {
             CommentEntity comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
-            // Count all replies for the specific comment
             return commentRepository.countAllByParentComment(comment);
         }
     }
@@ -116,5 +115,4 @@ public class CommentService {
                 .commentDate(commentEntity.getCommentDate())
                 .build();
     }
-
 }

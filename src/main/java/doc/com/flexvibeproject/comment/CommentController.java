@@ -14,9 +14,9 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping("/{movieId}")
-    public void addComment(Principal principal,@PathVariable(required = false) Long movieId, @RequestBody CommentRequest request, CommentRole role) {
-        commentService.postComment(principal, movieId, request, role);
+    @PostMapping("/{id}")
+    public void addComment(Principal principal, @PathVariable Long id, @RequestBody CommentRequest request, @RequestHeader("X-Comment-Role") CommentRole role) {
+        commentService.postComment(principal, id, request, role);
     }
 
     @PutMapping("/{id}")
@@ -28,11 +28,6 @@ public class CommentController {
     public List<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id) {
         return commentService.getCommentByMovieIdOrWebsite(id);
     }
-
-//    @GetMapping
-//    public List<CommentResponse> getWebsiteComments() {
-//        return commentService.getCommentByMovieIdOrWebsite(null);
-//    }
 
     @DeleteMapping("/{id}")
     public void deleteCommentById(Principal principal, @PathVariable Long id) {
