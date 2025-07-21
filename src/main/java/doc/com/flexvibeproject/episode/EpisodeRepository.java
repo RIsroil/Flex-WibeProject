@@ -16,7 +16,7 @@ public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
     void deleteAllByMovieEntity(MovieEntity movie);
     List<EpisodeEntity> findAllByMovieEntity(MovieEntity movie);
 
-    int countByMovieEntityAndCreatedAtAfter(@Param("movie") MovieEntity movie, @Param("since") LocalDateTime since);
+    int countByMovieEntityAndCreatedDateAfter(@Param("movie") MovieEntity movie, @Param("since") LocalDateTime since);
 
     @Query("SELECT COALESCE(COUNT(e), 0) FROM EpisodeEntity e WHERE e.movieEntity.movieRole = :role")
     int countByMovieEntityMovieRole(@Param("role") MovieRole role);

@@ -311,7 +311,7 @@ public class MovieService {
         // Count serials and their episodes
         List<MovieEntity> serials = movieRepository.findByMovieRoleAndReleaseDateLocalAfter(MovieRole.SERIAL, oneMonthAgo);
         List<SerialCountResponse> serialCounts = serials.stream().map(serial -> {
-            int episodeCount = episodeRepository.countByMovieEntityAndCreatedAtAfter(serial, oneMonthAgo);
+            int episodeCount = episodeRepository.countByMovieEntityAndCreatedDateAfter(serial, oneMonthAgo);
             return new SerialCountResponse(serial.getId(), serial.getTitle(), episodeCount);
         }).collect(Collectors.toList());
 
