@@ -38,7 +38,7 @@ public class MovieEntity {
     private String imageUrl;
     private String trailerPath;
     private boolean premiere = false;
-    private LocalDate releaseDateLocal;
+    private LocalDateTime releaseDateLocal;
 
     @Enumerated(EnumType.STRING)
     private MovieRole movieRole;

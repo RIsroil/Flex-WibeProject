@@ -72,7 +72,7 @@ public class MovieService {
                 .language(request.getLanguage())
                 .ageLimit(request.getAgeLimit())
                 .premiere(request.isPremiere())
-                .releaseDateLocal(LocalDate.now())
+                .releaseDateLocal(LocalDateTime.now())
                 .movieRole(request.getMovieRole())
                 .build();
         movieRepository.save(movie);
@@ -305,11 +305,11 @@ public class MovieService {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
         // Count films and concerts
-        int filmCount = movieRepository.countByMovieRoleAndCreatedAtAfter(MovieRole.FILM, oneMonthAgo);
-        int concertCount = movieRepository.countByMovieRoleAndCreatedAtAfter(MovieRole.CONCERT, oneMonthAgo);
+        int filmCount = movieRepository.countByMovieRoleAndReleaseDateLocalAfter(MovieRole.FILM, oneMonthAgo);
+        int concertCount = movieRepository.countByMovieRoleAndReleaseDateLocalAfter(MovieRole.CONCERT, oneMonthAgo);
 
         // Count serials and their episodes
-        List<MovieEntity> serials = movieRepository.findByMovieRoleAndCreatedAtAfter(MovieRole.SERIAL, oneMonthAgo);
+        List<MovieEntity> serials = movieRepository.findByMovieRoleAndReleaseDateLocalAfter(MovieRole.SERIAL, oneMonthAgo);
         List<SerialCountResponse> serialCounts = serials.stream().map(serial -> {
             int episodeCount = episodeRepository.countByMovieEntityAndCreatedAtAfter(serial, oneMonthAgo);
             return new SerialCountResponse(serial.getId(), serial.getTitle(), episodeCount);

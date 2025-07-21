@@ -43,9 +43,9 @@ public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
     @Query("SELECT COALESCE(SUM(m.viewCount), 0) FROM MovieEntity m WHERE m.movieRole = :role AND m.releaseDateLocal >= :since")
     int sumViewCountByMovieRoleAndLastMonth(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
 
-    int countByMovieRoleAndCreatedAtAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
+    int countByMovieRoleAndReleaseDateLocalAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
 
-    List<MovieEntity> findByMovieRoleAndCreatedAtAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
+    List<MovieEntity> findByMovieRoleAndReleaseDateLocalAfter(@Param("role") MovieRole role, @Param("since") LocalDateTime since);
 
     int countByMovieRole(@Param("role") MovieRole role);
 

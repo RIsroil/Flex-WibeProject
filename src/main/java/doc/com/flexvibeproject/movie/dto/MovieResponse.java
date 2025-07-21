@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -30,7 +31,7 @@ public class MovieResponse {
     private String imageUrl;
     private String trailerPath;
     private boolean premiere;
-    private LocalDate releaseDateLocal;
+    private LocalDateTime releaseDateLocal;
     private int views;
     private int likes;
 
