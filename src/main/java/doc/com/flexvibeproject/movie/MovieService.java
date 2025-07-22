@@ -258,7 +258,7 @@ public class MovieService {
     }
 
     private MovieResponse mapToResponse(MovieEntity movie) {
-        int episodesCount = 0;
+        Integer episodesCount = 0;
         int views = 0;
         int likes = 0;
 
