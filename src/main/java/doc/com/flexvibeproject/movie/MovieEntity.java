@@ -58,6 +58,8 @@ public class MovieEntity {
     private int viewCount = 0;
     private int likeCount = 0;
 
+    private Integer episodeCount=0;
+
     public void incrementViewCount(){
         this.viewCount++;
     }

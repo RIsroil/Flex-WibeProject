@@ -51,6 +51,7 @@ public class EpisodeService {
                 .duration(request.getDuration())
                 .movieEntity(movie)
                 .createdDate(LocalDateTime.now())
+                .countItself(1)
                 .build();
         episodeRepository.save(newEpisode);
     }

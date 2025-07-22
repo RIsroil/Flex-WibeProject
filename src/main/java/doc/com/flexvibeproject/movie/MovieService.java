@@ -258,6 +258,14 @@ public class MovieService {
     }
 
     private MovieResponse mapToResponse(MovieEntity movie) {
+        Integer episodesCount = null;
+        episodesCount = movie.getMovieRole() == MovieRole.SERIAL
+                ? episodeRepository.findAllByMovieEntity(movie)
+                .stream()
+                .mapToInt(EpisodeEntity::getCountItself)
+                .sum()
+                : movie.getEpisodeCount();
+
         int views =  movie.getMovieRole() == MovieRole.SERIAL
                 ? episodeRepository.findAllByMovieEntity(movie)
                 .stream()
@@ -290,6 +298,7 @@ public class MovieService {
                 .movieRole(movie.getMovieRole())
                 .views(views)
                 .likes(likes)
+                .episodesCount(episodesCount)
                 .build();
     }
 
