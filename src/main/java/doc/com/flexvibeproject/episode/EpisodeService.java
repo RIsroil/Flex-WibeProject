@@ -25,7 +25,7 @@ public class EpisodeService {
     public void createEpisode(Long id, EpisodeRequest request){
         MovieEntity movie = movieRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-        EpisodeEntity existingByEpisodeNumber = episodeRepository.findByEpisodeNumber(request.getEpisodeNumber());
+        EpisodeEntity existingByEpisodeNumber = episodeRepository.findByEpisodeNumberAndSeason(request.getEpisodeNumber(), request.getSeason());
 
         if (movie.getMovieRole() != MovieRole.SERIAL) {throw new InvalidInputException("This Movie is not a Serial");}
         if (episodeRepository.findByTitle(request.getTitle()) != null) {throw new DuplicateResourceException("This title is already taken");}

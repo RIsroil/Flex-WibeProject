@@ -8,11 +8,12 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
     EpisodeEntity findByTitle(String title);
     EpisodeEntity findBySeason(int season);
-    EpisodeEntity findByEpisodeNumber(int episode);
+    EpisodeEntity findByEpisodeNumberAndSeason(int episode,int season);
     void deleteAllByMovieEntity(MovieEntity movie);
     List<EpisodeEntity> findAllByMovieEntity(MovieEntity movie);
 
@@ -20,4 +21,10 @@ public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
 
     @Query("SELECT COALESCE(COUNT(e), 0) FROM EpisodeEntity e WHERE e.movieEntity.movieRole = :role")
     int countByMovieEntityMovieRole(@Param("role") MovieRole role);
+
+    int countByMovieEntity(MovieEntity movieEntity);
+    Optional<EpisodeEntity> findByMovieEntityAndSeasonAndEpisodeNumber(MovieEntity movie, Integer season, Integer episodeNumber);
+
+
+
 }
