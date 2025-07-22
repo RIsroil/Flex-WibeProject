@@ -258,7 +258,7 @@ public class MovieService {
     }
 
     private MovieResponse mapToResponse(MovieEntity movie) {
-        Integer episodesCount = null;
+        int episodesCount = 0;
         episodesCount = movie.getMovieRole() == MovieRole.SERIAL
                 ? episodeRepository.findAllByMovieEntity(movie)
                 .stream()

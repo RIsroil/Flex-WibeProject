@@ -31,7 +31,7 @@ public class EpisodeEntity {
     private int viewCount = 0;
     private int likeCount = 0;
     private LocalDateTime createdDate;
-    Integer countItself = 0;
+    private int countItself = 0;
 
     @ManyToOne
     @JoinColumn(name = "movie_id")

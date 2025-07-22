@@ -34,6 +34,6 @@ public class MovieResponse {
     private LocalDateTime releaseDateLocal;
     private int views;
     private int likes;
-    private Integer episodesCount;
+    private int episodesCount;
 
 }
