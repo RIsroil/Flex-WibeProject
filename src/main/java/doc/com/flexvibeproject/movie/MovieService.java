@@ -258,24 +258,21 @@ public class MovieService {
     }
 
     private MovieResponse mapToResponse(MovieEntity movie) {
-        int episodesCount = movie.getMovieRole() == MovieRole.SERIAL
-                ? episodeRepository.countByMovieEntity(movie)
-                : movie.getEpisodeCount();
+        int episodesCount = 0;
+        int views = 0;
+        int likes = 0;
 
+        if (movie.getMovieRole() == MovieRole.SERIAL) {
+            List<EpisodeEntity> episodes = episodeRepository.findAllByMovieEntity(movie);
 
-        int views =  movie.getMovieRole() == MovieRole.SERIAL
-                ? episodeRepository.findAllByMovieEntity(movie)
-                .stream()
-                .mapToInt(EpisodeEntity::getViewCount)
-                .sum()
-                : movie.getViewCount();
-
-        int likes =  movie.getMovieRole() == MovieRole.SERIAL
-                ? episodeRepository.findAllByMovieEntity(movie)
-                .stream()
-                .mapToInt(EpisodeEntity::getLikeCount)
-                .sum()
-                : movie.getLikeCount();
+            episodesCount = episodes.size(); // Count episodes directly
+            views = episodes.stream().mapToInt(EpisodeEntity::getViewCount).sum();
+            likes = episodes.stream().mapToInt(EpisodeEntity::getLikeCount).sum();
+        } else {
+            episodesCount = movie.getEpisodeCount();
+            views = movie.getViewCount();
+            likes = movie.getLikeCount();
+        }
 
         return MovieResponse.builder()
                 .id(movie.getId())
