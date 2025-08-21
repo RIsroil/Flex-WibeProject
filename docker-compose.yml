@@ -17,7 +17,7 @@ services:
       SPRING_PROFILES_ACTIVE: production
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       MINIO_ENDPOINT: http://minio-flex:9000
-      MINIO_PUBLIC_ENDPOINT: https://be-dev.uz  # Remove /minio
+      MINIO_PUBLIC_ENDPOINT: https://be-dev.uz
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET_NAME: flex-bucket
@@ -57,6 +57,32 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     volumes:
       - minio_flex_data:/data
+    networks:
+      - flexvibe-network
+
+  nginx:
+    image: nginx:latest
+    container_name: flexvibe-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    depends_on:
+      - flexvibe-app
+    networks:
+      - flexvibe-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: flexvibe-certbot
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: /bin/sh
     networks:
       - flexvibe-network
 

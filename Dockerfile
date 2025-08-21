@@ -1,20 +1,12 @@
-# === Stage 1: Build ===
+# Build stage
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-COPY pom.xml .
-RUN mvn dependency:go-offline
-
-COPY src ./src
-RUN mvn package -DskipTests
-
-
-# === Stage 2: Run ===
-FROM eclipse-temurin:21-jre
+# Run stage
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-
-COPY --from=build /app/target/*.jar flexvibe.jar
-
-EXPOSE 8080
-
-CMD ["java", "-jar", "flexvibe.jar"]
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8081
+ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=prod"]
