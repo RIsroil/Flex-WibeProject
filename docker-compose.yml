@@ -100,7 +100,7 @@ services:
       SPRING_PROFILES_ACTIVE: production
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop  # Avtomatik ma'lumotlar bazasi yaratish
       MINIO_ENDPOINT: http://minio-flex:9000
-      MINIO_PUBLIC_ENDPOINT: http://83.222.19.171
+      MINIO_PUBLIC_ENDPOINT: http://83.222.19.171:9102
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET_NAME: flex-bucket
