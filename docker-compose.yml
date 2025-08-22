@@ -82,6 +82,7 @@
 #  flexvibe-network:
 #    driver: bridge
 
+
 services:
   flexvibe-app:
     build:
