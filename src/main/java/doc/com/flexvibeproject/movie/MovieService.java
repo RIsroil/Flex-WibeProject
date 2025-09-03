@@ -78,22 +78,45 @@ public class MovieService {
         movieRepository.save(movie);
     }
 
+    @Transactional
     public void updateMovie(Long id, MovieUpdateRequest request) {
         MovieEntity existing = movieRepository.findById(id)
-                .orElseThrow( () -> new ResourceNotFoundException("Movie not found with id: " + id));
-        
-        if (request.getDescription() != null) {existing.setDescription(request.getDescription());}
-        if (request.getFilePath() != null) {existing.setFilePath(request.getFilePath());}
-        if (request.getGenres() != null) {existing.setGenres(request.getGenres());}
-        if (request.getCountry() != null) {existing.setCountry(request.getCountry());}
-        if (request.getReleaseYear() != null) {existing.setReleaseYear(request.getReleaseYear());}
-        if (request.getDuration() != null) {existing.setDuration(request.getDuration());}
-        if (request.getLanguage() != null) {existing.setLanguage(request.getLanguage());}
-        if (request.getAgeLimit() != null) {existing.setAgeLimit(request.getAgeLimit());}
-        if (request.getImageUrl() != null) {existing.setImageUrl(request.getImageUrl());}
-        if (request.getTrailerPath() != null) {existing.setTrailerPath(request.getTrailerPath());}
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
+
+        if (request.getDescription() != null && !Objects.equals(existing.getDescription(), request.getDescription())) {
+            existing.setDescription(request.getDescription());
+        }
+        if (request.getFilePath() != null && !Objects.equals(existing.getFilePath(), request.getFilePath())) {
+            existing.setFilePath(request.getFilePath());
+        }
+        if (request.getGenres() != null && !Objects.equals(existing.getGenres(), request.getGenres())) {
+            existing.setGenres(request.getGenres());
+        }
+        if (request.getCountry() != null && !Objects.equals(existing.getCountry(), request.getCountry())) {
+            existing.setCountry(request.getCountry());
+        }
+        if (request.getReleaseYear() != null && !Objects.equals(existing.getReleaseYear(), request.getReleaseYear())) {
+            existing.setReleaseYear(request.getReleaseYear());
+        }
+        if (request.getDuration() != null && !Objects.equals(existing.getDuration(), request.getDuration())) {
+            existing.setDuration(request.getDuration());
+        }
+        if (request.getLanguage() != null && !Objects.equals(existing.getLanguage(), request.getLanguage())) {
+            existing.setLanguage(request.getLanguage());
+        }
+        if (request.getAgeLimit() != null && !Objects.equals(existing.getAgeLimit(), request.getAgeLimit())) {
+            existing.setAgeLimit(request.getAgeLimit());
+        }
+        if (request.getImageUrl() != null && !Objects.equals(existing.getImageUrl(), request.getImageUrl())) {
+            existing.setImageUrl(request.getImageUrl());
+        }
+        if (request.getTrailerPath() != null && !Objects.equals(existing.getTrailerPath(), request.getTrailerPath())) {
+            existing.setTrailerPath(request.getTrailerPath());
+        }
+
         movieRepository.save(existing);
     }
+
 
     public MovieResponse getById(Long id) {
         MovieEntity movie = movieRepository.findById(id)
