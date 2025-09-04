@@ -408,7 +408,7 @@ public class MovieService {
         }
 
         LevenshteinDistance distance = new LevenshteinDistance();
-        int maxDistance = 2;
+        double maxDistance = 0.9;
         String inputLower = input.toLowerCase();
 
         // Birinchi: aniq mos kelish
