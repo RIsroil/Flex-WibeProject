@@ -4,13 +4,14 @@ import doc.com.flexvibeproject.movie.role.LanguageType;
 import doc.com.flexvibeproject.movie.role.MovieGenre;
 import doc.com.flexvibeproject.movie.role.MovieRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
+public interface MovieRepository extends JpaRepository<MovieEntity, Long>, JpaSpecificationExecutor<MovieEntity> {
     MovieEntity findByTitle(String title);
 
     @Query("SELECT DISTINCT g FROM MovieEntity m JOIN m.genres g")

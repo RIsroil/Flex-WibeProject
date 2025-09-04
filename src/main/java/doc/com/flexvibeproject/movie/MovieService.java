@@ -17,11 +17,14 @@ import doc.com.flexvibeproject.movie.role.MovieGenre;
 import doc.com.flexvibeproject.movie.role.MovieRole;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -187,10 +190,12 @@ public class MovieService {
 
     public List<MovieResponse> smartSearch(String rawText) {
         if (rawText == null || rawText.isBlank()) {
-            return List.of();
+            return movieRepository.findAll().stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
         }
 
-        String text = rawText.toLowerCase();
+        String text = rawText.toLowerCase().trim();
         String[] tokens = text.split("\\s+");
 
         Set<MovieGenre> foundGenres = new HashSet<>();
@@ -199,73 +204,291 @@ public class MovieService {
         Set<MovieRole> foundTypes = new HashSet<>();
         Integer foundYear = null;
         Boolean isPremiere = null;
-        StringBuilder titleBuilder = new StringBuilder();
+        List<String> titleWords = new ArrayList<>();
 
+        // Tokenlarni tahlil qilish
         for (String word : tokens) {
+            boolean isSpecialField = false;
 
-            fuzzyMatchEnum(MovieGenre.class, word).ifPresent(foundGenres::add);
-
-            fuzzyMatchEnum(LanguageType.class, word).ifPresent(foundLanguages::add);
-
-            fuzzyMatchEnum(CountryType.class, word).ifPresent(foundCountries::add);
-
-            fuzzyMatchEnum(MovieRole.class, word).ifPresent(foundTypes::add);
-
-            if (word.contains("premyera") || word.contains("premera") || word.contains("primyera")) {
-                isPremiere = true;
+            // Fuzzy matching bilan enum'larni topish
+            if (fuzzyMatchEnum(MovieGenre.class, word).isPresent()) {
+                foundGenres.add(fuzzyMatchEnum(MovieGenre.class, word).get());
+                isSpecialField = true;
             }
 
+            if (fuzzyMatchEnum(LanguageType.class, word).isPresent()) {
+                foundLanguages.add(fuzzyMatchEnum(LanguageType.class, word).get());
+                isSpecialField = true;
+            }
+
+            if (fuzzyMatchEnum(CountryType.class, word).isPresent()) {
+                foundCountries.add(fuzzyMatchEnum(CountryType.class, word).get());
+                isSpecialField = true;
+            }
+
+            if (fuzzyMatchEnum(MovieRole.class, word).isPresent()) {
+                foundTypes.add(fuzzyMatchEnum(MovieRole.class, word).get());
+                isSpecialField = true;
+            }
+
+            // Premyera aniqlash
+            if (word.contains("premyera") || word.contains("premera") || word.contains("primyera") ||
+                    word.contains("premiere") || word.contains("yangi")) {
+                isPremiere = true;
+                isSpecialField = true;
+            }
+
+            // Yil aniqlash
             if (word.matches("\\d{4}")) {
-                foundYear = Integer.parseInt(word);
+                int year = Integer.parseInt(word);
+                if (year >= 1900 && year <= 2030) { // Mantiqiy yil oralig'i
+                    foundYear = year;
+                    isSpecialField = true;
+                }
             } else if (word.matches("\\d{4}-?yil")) {
                 foundYear = Integer.parseInt(word.replace("-yil", "").replace("yil", ""));
+                isSpecialField = true;
             }
 
-            if (
-                    !fuzzyMatchEnum(MovieGenre.class, word).isPresent() &&
-                            !fuzzyMatchEnum(LanguageType.class, word).isPresent() &&
-                            !fuzzyMatchEnum(CountryType.class, word).isPresent() &&
-                            !fuzzyMatchEnum(MovieRole.class, word).isPresent() &&
-                            !word.matches("\\d{4}(-?yil)?") &&
-                            !word.contains("premyera")
-            ) {
-                titleBuilder.append(word).append(" ");
+            // Agar bu maxsus field bo'lmasa, title uchun saqlash
+            if (!isSpecialField) {
+                titleWords.add(word);
             }
         }
 
-        String titleLike = titleBuilder.toString().trim();
+        // JPA Specification yaratish
+        Specification<MovieEntity> spec = createUniversalSearchSpec(
+                titleWords, foundGenres, foundLanguages, foundCountries,
+                foundTypes, foundYear, isPremiere
+        );
 
-        List<MovieEntity> allMovies = movieRepository.findAll();
+        List<MovieEntity> results = movieRepository.findAll(spec);
 
-        Integer finalFoundYear1 = foundYear;
-        Boolean finalIsPremiere1 = isPremiere;
-        return allMovies.stream()
-                .filter(m -> titleLike.isEmpty() || isSimilar(m.getTitle(), titleLike))
-                .filter(m -> foundGenres.isEmpty() || !Collections.disjoint(m.getGenres(), foundGenres))
-                .filter(m -> foundLanguages.isEmpty() || foundLanguages.contains(m.getLanguage()))
-                .filter(m -> foundCountries.isEmpty() || foundCountries.contains(m.getCountry()))
-                .filter(m -> foundTypes.isEmpty() || foundTypes.contains(m.getMovieRole()))
-                .filter(m -> finalFoundYear1 == null || m.getReleaseYear() == finalFoundYear1)
-                .filter(m -> finalIsPremiere1 == null || m.isPremiere() == finalIsPremiere1)
+        // Agar natija bo'sh bo'lsa, fuzzy search qilish
+        if (results.isEmpty() && !titleWords.isEmpty()) {
+            return performFuzzyTitleSearch(String.join(" ", titleWords));
+        }
+
+        // Natijalarni similarity bo'yicha tartibga solish
+        return results.stream()
                 .map(this::mapToResponse)
+                .sorted((a, b) -> calculateRelevanceScore(b, rawText) - calculateRelevanceScore(a, rawText))
                 .collect(Collectors.toList());
     }
 
-    private boolean isSimilar(String a, String b) {
-        LevenshteinDistance distance = new LevenshteinDistance();
-        int maxAllowed = 2;
+    // Universal search specification
+    private Specification<MovieEntity> createUniversalSearchSpec(
+            List<String> titleWords,
+            Set<MovieGenre> foundGenres,
+            Set<LanguageType> foundLanguages,
+            Set<CountryType> foundCountries,
+            Set<MovieRole> foundTypes,
+            Integer foundYear,
+            Boolean isPremiere) {
 
-        int result = distance.apply(a.toLowerCase(), b.toLowerCase());
-        return result <= maxAllowed;
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Title bo'yicha qidirish - har bir so'z uchun
+            if (!titleWords.isEmpty()) {
+                List<Predicate> titlePredicates = new ArrayList<>();
+
+                for (String word : titleWords) {
+                    if (word.length() >= 2) { // 2 belgidan kichik so'zlarni e'tiborsiz qoldirish
+                        titlePredicates.add(
+                                cb.like(cb.lower(root.get("title")), "%" + word + "%")
+                        );
+                    }
+                }
+
+                if (!titlePredicates.isEmpty()) {
+                    // Kamida bitta so'z title'da bo'lishi kerak
+                    predicates.add(cb.or(titlePredicates.toArray(new Predicate[0])));
+                }
+            }
+
+            // Genre'lar bo'yicha qidirish
+            if (!foundGenres.isEmpty()) {
+                List<Predicate> genrePredicates = new ArrayList<>();
+                for (MovieGenre genre : foundGenres) {
+                    genrePredicates.add(cb.isMember(genre, root.get("genres")));
+                }
+                predicates.add(cb.or(genrePredicates.toArray(new Predicate[0])));
+            }
+
+            // Language bo'yicha qidirish
+            if (!foundLanguages.isEmpty()) {
+                predicates.add(root.get("language").in(foundLanguages));
+            }
+
+            // Country bo'yicha qidirish
+            if (!foundCountries.isEmpty()) {
+                predicates.add(root.get("country").in(foundCountries));
+            }
+
+            // MovieRole bo'yicha qidirish
+            if (!foundTypes.isEmpty()) {
+                predicates.add(root.get("movieRole").in(foundTypes));
+            }
+
+            // Yil bo'yicha qidirish
+            if (foundYear != null) {
+                predicates.add(cb.equal(root.get("releaseYear"), foundYear));
+            }
+
+            // Premyera bo'yicha qidirish
+            if (isPremiere != null) {
+                predicates.add(cb.equal(root.get("premiere"), isPremiere));
+            }
+
+            // Agar hech qanday predicate bo'lmasa, hamma filmni qaytarish
+            if (predicates.isEmpty()) {
+                return cb.conjunction(); // TRUE qaytaradi
+            }
+
+            // AND operatori o'rniga OR operatori - ko'proq natija uchun
+            return cb.or(predicates.toArray(new Predicate[0]));
+        };
     }
 
+    // Fuzzy title search - agar asosiy qidiruvda natija bo'lmasa
+    private List<MovieResponse> performFuzzyTitleSearch(String searchTitle) {
+        List<MovieEntity> allMovies = movieRepository.findAll();
+
+        return allMovies.stream()
+                .filter(movie -> isSimilar(movie.getTitle(), searchTitle))
+                .map(this::mapToResponse)
+                .sorted((a, b) -> calculateTitleSimilarity(b.getTitle(), searchTitle) -
+                        calculateTitleSimilarity(a.getTitle(), searchTitle))
+                .collect(Collectors.toList());
+    }
+
+    // Relevance score hisoblash
+    private int calculateRelevanceScore(MovieResponse movie, String searchText) {
+        int score = 0;
+        String searchLower = searchText.toLowerCase();
+        String titleLower = movie.getTitle() != null ? movie.getTitle().toLowerCase() : "";
+
+        // Title'da aniq so'z bor bo'lsa
+        if (titleLower.contains(searchLower)) {
+            score += 100;
+        }
+
+        // Title'da qisman so'zlar bor bo'lsa
+        String[] searchWords = searchLower.split("\\s+");
+        for (String word : searchWords) {
+            if (word.length() >= 2 && titleLower.contains(word)) {
+                score += 10;
+            }
+        }
+
+        // Yangi filmlar uchun bonus
+        if (movie.getReleaseYear() != null && movie.getReleaseYear() >= 2020) {
+            score += 5;
+        }
+
+        return score;
+    }
+
+    // Title similarity score
+    private int calculateTitleSimilarity(String title, String search) {
+        if (title == null || search == null) return 0;
+
+        LevenshteinDistance distance = new LevenshteinDistance();
+        int maxLength = Math.max(title.length(), search.length());
+        int dist = distance.apply(title.toLowerCase(), search.toLowerCase());
+
+        return maxLength - dist; // Ko'proq o'xshash bo'lsa, ko'proq score
+    }
+
+    // Yaxshilangan fuzzy enum matching
     public <E extends Enum<E>> Optional<E> fuzzyMatchEnum(Class<E> enumClass, String input) {
+        if (input == null || input.isBlank()) {
+            return Optional.empty();
+        }
+
         LevenshteinDistance distance = new LevenshteinDistance();
         int maxDistance = 2;
+        String inputLower = input.toLowerCase();
 
+        // Birinchi: aniq mos kelish
+        for (E enumValue : enumClass.getEnumConstants()) {
+            if (enumValue.name().toLowerCase().equals(inputLower)) {
+                return Optional.of(enumValue);
+            }
+        }
+
+        // Ikkinchi: ichida mavjudlik
+        for (E enumValue : enumClass.getEnumConstants()) {
+            String enumName = enumValue.name().toLowerCase();
+            if (enumName.contains(inputLower) || inputLower.contains(enumName)) {
+                return Optional.of(enumValue);
+            }
+        }
+
+        // Uchinchi: toString() metodini tekshirish
+        for (E enumValue : enumClass.getEnumConstants()) {
+            String enumString = enumValue.toString().toLowerCase();
+            if (enumString.equals(inputLower) ||
+                    enumString.contains(inputLower) ||
+                    inputLower.contains(enumString)) {
+                return Optional.of(enumValue);
+            }
+        }
+
+        // To'rtinchi: Levenshtein distance
         return Arrays.stream(enumClass.getEnumConstants())
-                .filter(e -> distance.apply(e.name().toLowerCase(), input.toLowerCase()) <= maxDistance)
-                .findFirst();
+                .filter(e -> distance.apply(e.name().toLowerCase(), inputLower) <= maxDistance)
+                .min(Comparator.comparingInt(e ->
+                        distance.apply(e.name().toLowerCase(), inputLower)));
+    }
+
+    // Yaxshilangan similarity checker
+    private boolean isSimilar(String a, String b) {
+        if (a == null || b == null) {
+            return false;
+        }
+
+        String aLower = a.toLowerCase();
+        String bLower = b.toLowerCase();
+
+        // Aniq mos kelish
+        if (aLower.equals(bLower)) {
+            return true;
+        }
+
+        // Ichida mavjudlik (katta qismini qamrab olsa)
+        if (aLower.contains(bLower) || bLower.contains(aLower)) {
+            return true;
+        }
+
+        // So'zma-so'z taqqoslash
+        String[] wordsA = aLower.split("\\s+");
+        String[] wordsB = bLower.split("\\s+");
+
+        int matchingWords = 0;
+        for (String wordA : wordsA) {
+            for (String wordB : wordsB) {
+                if (wordA.equals(wordB) ||
+                        (wordA.length() > 3 && wordB.length() > 3 &&
+                                (wordA.contains(wordB) || wordB.contains(wordA)))) {
+                    matchingWords++;
+                    break;
+                }
+            }
+        }
+
+        // Agar so'zlarning yarmidan ko'pi mos kelsa
+        int totalWords = Math.min(wordsA.length, wordsB.length);
+        if (totalWords > 0 && (double) matchingWords / totalWords >= 0.5) {
+            return true;
+        }
+
+        // Levenshtein distance
+        LevenshteinDistance distance = new LevenshteinDistance();
+        int maxAllowed = Math.max(2, Math.min(aLower.length(), bLower.length()) / 3);
+
+        return distance.apply(aLower, bLower) <= maxAllowed;
     }
 
     @Transactional
