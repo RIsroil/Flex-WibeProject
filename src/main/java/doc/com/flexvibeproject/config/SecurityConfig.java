@@ -68,12 +68,14 @@ public class SecurityConfig {
                                 "/api/minio/stream/**",
                                 "/api/minio/proxy/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/movie/{id}/views", "/api/episode/view").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/comment/**", "/api/like/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/auth/change-password").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/episode/view/**").hasAnyRole("USER","ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/movie/**/views").hasAnyRole("USER","ADMIN")
+//                        .requestMatchers(HttpMethod.PUT, "/api/movie/**/views").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/movie/**", "/api/episode/**", "/api/minio/upload").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/movie/**", "/api/episode/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/movie/**", "/api/episode/**").hasRole("ADMIN")

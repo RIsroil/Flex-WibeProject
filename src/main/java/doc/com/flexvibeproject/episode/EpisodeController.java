@@ -38,7 +38,7 @@ public class EpisodeController {
         episodeService.deleteEpisodeById(id);
     }
 
-    @PostMapping("/view/{id}")
+    @PutMapping("/view/{id}")
     public void viewEpisode(@PathVariable Long id) {
         episodeService.incrementViews(id);
     }
