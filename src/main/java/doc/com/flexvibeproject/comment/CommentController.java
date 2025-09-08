@@ -15,7 +15,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{id}")
-    public void addComment(Principal principal, @PathVariable Long id, @RequestBody CommentRequest request, @RequestParam CommentRole role) {
+    public void addComment(Principal principal, @PathVariable(required = false) Long id, @RequestBody CommentRequest request, @RequestParam CommentRole role) {
         commentService.postComment(principal, id, request, role);
     }
 

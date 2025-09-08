@@ -2,6 +2,7 @@ package doc.com.flexvibeproject.comment;
 
 import doc.com.flexvibeproject.comment.dto.CommentRequest;
 import doc.com.flexvibeproject.comment.dto.CommentResponse;
+import doc.com.flexvibeproject.exception.InvalidInputException;
 import doc.com.flexvibeproject.exception.ResourceNotFoundException;
 import doc.com.flexvibeproject.like.LikeRepository;
 import doc.com.flexvibeproject.movie.MovieEntity;
@@ -30,14 +31,24 @@ public class CommentService {
         CommentEntity parentComment = null;
 
         if (commentRole == CommentRole.MOVIE) {
+            if (id == null) {
+                throw new InvalidInputException("Movie id is required");
+            }
             movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
         } else if (commentRole == CommentRole.REPLY) {
+            if (id == null) {
+                throw new InvalidInputException("Movie id is required");
+            }
             parentComment = commentRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
             movie = parentComment.getMovieEntity(); // Inherit movie from parent comment
             if (movie == null || parentComment.getCommentRole() != CommentRole.MOVIE) {
                 throw new IllegalArgumentException("Replies must be associated with a movie comment");
+            }
+        } else if (commentRole == CommentRole.WEBSITE) {
+            if (id != null) {
+                throw new InvalidInputException("Website comments should not have an id");
             }
         }
 
