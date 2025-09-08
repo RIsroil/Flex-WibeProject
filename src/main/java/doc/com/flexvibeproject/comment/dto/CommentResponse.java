@@ -17,4 +17,5 @@ public class CommentResponse {
     private LocalDateTime commentDate;
 
     private Long movieId;
+    private int like;
 }

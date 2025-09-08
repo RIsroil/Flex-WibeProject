@@ -124,6 +124,7 @@ public class CommentService {
                 .username(commentEntity.getUser().getUsername())
                 .commentRole(commentEntity.getCommentRole())
                 .commentDate(commentEntity.getCommentDate())
+                .like(commentEntity.getLikeCount())
                 .build();
     }
 }
