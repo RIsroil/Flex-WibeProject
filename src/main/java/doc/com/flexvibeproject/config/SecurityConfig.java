@@ -68,7 +68,7 @@ public class SecurityConfig {
                                 "/api/minio/stream/**",
                                 "/api/minio/proxy/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/movie/{id}/views", "/api/episode/view").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/movie/{id}/views", "/api/episode/view/{id}").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/comment/**", "/api/like/**").hasAnyRole("USER","ADMIN")
