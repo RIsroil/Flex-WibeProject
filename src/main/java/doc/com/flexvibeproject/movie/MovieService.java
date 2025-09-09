@@ -86,6 +86,10 @@ public class MovieService {
         MovieEntity existing = movieRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id: " + id));
 
+        if (request.getTitle() != null && !Objects.equals(existing.getTitle(), request.getTitle())) {
+            existing.setTitle(request.getTitle());
+        }
+
         if (request.getDescription() != null && !Objects.equals(existing.getDescription(), request.getDescription())) {
             existing.setDescription(request.getDescription());
         }
