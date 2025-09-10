@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,9 +148,20 @@ public class MovieService {
     }
 
     public Page<MovieResponse> getAllMoviesByPage(Pageable pageable) {
-        return movieRepository.findAll(pageable)
-                .map(this::mapToResponse);
+        Page<MovieEntity> page = movieRepository.findAll(pageable);
+
+        List<MovieResponse> sortedList = page.getContent().stream()
+                .map(this::mapToResponse)
+                .sorted(Comparator.comparing(MovieResponse::getReleaseDateLocal).reversed())
+                .toList();
+
+        return new PageImpl<>(
+                sortedList,
+                pageable,
+                page.getTotalElements()
+        );
     }
+
 
     public List<MovieResponse> getMoviesByRole(MovieRole role){
         return movieRepository.findAllByMovieRole(role)

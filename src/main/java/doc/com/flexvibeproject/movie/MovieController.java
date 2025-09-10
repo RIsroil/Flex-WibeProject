@@ -52,7 +52,7 @@ public class MovieController {
 
     @GetMapping("/page")
     public Page<MovieResponse> getAllMovies(
-            @PageableDefault(page = 0, size = 20, sort = {"release_date_local"}) Pageable pageable) {
+            Pageable pageable) {
         return movieService.getAllMoviesByPage(pageable);
     }
 
