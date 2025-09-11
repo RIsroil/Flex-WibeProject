@@ -528,7 +528,7 @@ public class MovieService {
         int likes = 0;
 
         if (movie.getMovieRole() == MovieRole.SERIAL) {
-            List<EpisodeEntity> episodes = episodeRepository.findAllByMovieEntity(movie);
+            List<EpisodeEntity> episodes = episodeRepository.findAllByMovieEntity(movie, Pageable.unpaged()).getContent();
 
             episodesCount = episodes.size(); // Count episodes directly
             views = episodes.stream().mapToInt(EpisodeEntity::getViewCount).sum();
