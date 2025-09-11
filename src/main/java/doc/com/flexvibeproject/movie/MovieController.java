@@ -1,7 +1,5 @@
 package doc.com.flexvibeproject.movie;
 
-import doc.com.flexvibeproject.comment.CommentRole;
-import doc.com.flexvibeproject.minio.MinioService;
 import doc.com.flexvibeproject.movie.dto.*;
 import doc.com.flexvibeproject.movie.role.LanguageType;
 import doc.com.flexvibeproject.movie.role.MovieGenre;
@@ -9,11 +7,8 @@ import doc.com.flexvibeproject.movie.role.MovieRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -22,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MovieController {
     private final MovieService movieService;
-    private final MinioService minioService;
 
 
     @PostMapping()
@@ -57,8 +51,8 @@ public class MovieController {
     }
 
     @GetMapping("/by-role")
-    public List<MovieResponse> getMoviesByRole(@RequestParam MovieRole role) {
-        return movieService.getMoviesByRole(role);
+    public Page<MovieResponse> getMoviesByRole(@RequestParam MovieRole role, Pageable pageable) {
+        return movieService.getMoviesByRole(role, pageable);
     }
 
     @GetMapping("/genres/available")
@@ -67,8 +61,8 @@ public class MovieController {
     }
 
     @GetMapping("/by-genre")
-    public List<MovieResponse> getMoviesByGenre(@RequestParam MovieGenre genre) {
-        return movieService.getMoviesByGenre(genre);
+    public Page<MovieResponse> getMoviesByGenre(@RequestParam MovieGenre genre, Pageable pageable) {
+        return movieService.getMoviesByGenre(genre, pageable);
     }
 
     @GetMapping("/years/available")
@@ -77,8 +71,8 @@ public class MovieController {
     }
 
     @GetMapping("/by-year")
-    public List<MovieResponse> getMoviesByYear(@RequestParam Integer year) {
-        return movieService.getMoviesByYear(year);
+    public Page<MovieResponse> getMoviesByYear(@RequestParam Integer year, Pageable pageable) {
+        return movieService.getMoviesByYear(year, pageable);
     }
 
     @GetMapping("/languages/available")
@@ -87,8 +81,8 @@ public class MovieController {
     }
 
     @GetMapping("/by-language")
-    public List<MovieResponse> getMoviesByLanguage(@RequestParam LanguageType language) {
-        return movieService.getMoviesByLanguage(language);
+    public Page<MovieResponse> getMoviesByLanguage(@RequestParam LanguageType language, Pageable pageable) {
+        return movieService.getMoviesByLanguage(language, pageable);
     }
 
     @PutMapping("/{id}/views")
@@ -102,21 +96,8 @@ public class MovieController {
     }
 
     @GetMapping("/search")
-    public List<MovieResponse> search(@RequestParam String query) {
-        return movieService.smartSearch(query);
-    }
-
-    private String extractFileName(String fullUrl) {
-        if (fullUrl == null || fullUrl.isBlank()) {
-            throw new IllegalArgumentException("File URL cannot be null or empty");
-        }
-
-        String baseUrl = minioService.getPermanentUrl("");
-        if (!fullUrl.startsWith(baseUrl)) {
-            throw new IllegalArgumentException("Invalid file URL: " + fullUrl);
-        }
-
-        return fullUrl.substring(baseUrl.length());
+    public Page<MovieResponse> search(@RequestParam String query, Pageable pageable) {
+        return movieService.smartSearch(query, pageable);
     }
 
     @GetMapping("/views")

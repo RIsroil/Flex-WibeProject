@@ -10,6 +10,9 @@ import doc.com.flexvibeproject.movie.MovieRepository;
 import doc.com.flexvibeproject.movie.role.MovieRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -56,7 +59,7 @@ public class EpisodeService {
         episodeRepository.save(newEpisode);
     }
 
-    public List<EpisodeResponse> getEpisodesBySerialId(Long serialId) {
+    public Page<EpisodeResponse> getEpisodesBySerialId(Long serialId, Pageable pageable) {
         MovieEntity serial = movieRepository.findById(serialId)
                 .orElseThrow(() -> new ResourceNotFoundException("Serial (Movie) not found with id: " + serialId));
 
@@ -64,10 +67,13 @@ public class EpisodeService {
             throw new InvalidInputException("Movie with id " + serialId + " is not of role SERIAL");
         }
 
-        return episodeRepository.findAllByMovieEntity(serial)
-                .stream()
+        Page<EpisodeEntity> episodePage = episodeRepository.findAllByMovieEntity(serial, pageable);
+
+        List<EpisodeResponse> episodeResponses = episodePage.getContent().stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        return new PageImpl<>(episodeResponses, pageable, episodePage.getTotalElements());
     }
 
     public EpisodeResponse getEpisodeById(Long id){

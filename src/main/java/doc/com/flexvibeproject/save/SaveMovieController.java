@@ -1,6 +1,8 @@
 package doc.com.flexvibeproject.save;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +26,8 @@ public class SaveMovieController {
     }
 
     @GetMapping
-    public List<SaveMovieDTO> getSavedMovies(Principal principal) {
-        return saveMovieService.getSavedMovies(principal);
+    public Page<SaveMovieDTO> getSavedMovies(Principal principal, Pageable pageable) {
+        return saveMovieService.getSavedMovies(principal, pageable);
     }
 
     @GetMapping("/count")

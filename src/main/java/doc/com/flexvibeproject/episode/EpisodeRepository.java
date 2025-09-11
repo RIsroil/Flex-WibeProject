@@ -2,6 +2,8 @@ package doc.com.flexvibeproject.episode;
 
 import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.movie.role.MovieRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +15,7 @@ import java.util.Optional;
 public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
     EpisodeEntity findByTitle(String title);
     EpisodeEntity findByEpisodeNumberAndSeason(int episode,int season);
-    List<EpisodeEntity> findAllByMovieEntity(MovieEntity movie);
+    Page<EpisodeEntity> findAllByMovieEntity(MovieEntity movie, Pageable pageable);
 
     int countByMovieEntityAndCreatedDateAfter(@Param("movie") MovieEntity movie, @Param("since") LocalDateTime since);
 

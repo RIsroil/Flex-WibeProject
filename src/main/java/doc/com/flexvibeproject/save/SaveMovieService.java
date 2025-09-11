@@ -8,6 +8,9 @@ import doc.com.flexvibeproject.movie.MovieRepository;
 import doc.com.flexvibeproject.user.UserEntity;
 import doc.com.flexvibeproject.user.auth.AuthHelperService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,11 +50,13 @@ public class SaveMovieService {
         }
     }
 
-    public List<SaveMovieDTO> getSavedMovies(Principal principal) {
+    public Page<SaveMovieDTO> getSavedMovies(Principal principal, Pageable pageable) {
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
-        return saveMovieRepository.findByUserIdOrderBySavedAtDesc(user.getId()).stream()
+        Page<SaveMovieEntity> savedMoviesPage = saveMovieRepository.findByUserIdOrderBySavedAtDesc(user.getId(), pageable);
+        List<SaveMovieDTO> savedMovies = savedMoviesPage.getContent().stream()
                 .map(this::mapToResponse)
                 .toList();
+        return new PageImpl<>(savedMovies, pageable, savedMoviesPage.getTotalElements());
     }
 
     private SaveMovieDTO mapToResponse(SaveMovieEntity e) {

@@ -3,6 +3,8 @@ package doc.com.flexvibeproject.episode;
 import doc.com.flexvibeproject.episode.dto.EpisodeRequest;
 import doc.com.flexvibeproject.episode.dto.EpisodeResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,8 @@ public class EpisodeController {
     }
 
     @GetMapping("/by-serial/{serialId}")
-    public List<EpisodeResponse> getEpisodesBySerial(@PathVariable Long serialId) {
-        return episodeService.getEpisodesBySerialId(serialId);
+    public Page<EpisodeResponse> getEpisodesBySerial(@PathVariable Long serialId, Pageable pageable) {
+        return episodeService.getEpisodesBySerialId(serialId, pageable);
     }
 
     @GetMapping("/{id}")

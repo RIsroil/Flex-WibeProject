@@ -12,6 +12,9 @@ import doc.com.flexvibeproject.user.UserEntity;
 import doc.com.flexvibeproject.user.auth.AuthHelperService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -77,17 +80,21 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public List<CommentResponse> getCommentByMovieIdOrWebsite(Long id) {
+    public Page<CommentResponse> getCommentByMovieIdOrWebsite(Long id, Pageable pageable) {
         if (id == null) {
-            return commentRepository.findAllByWebsiteComments().stream()
+            Page<CommentEntity> commentPage = commentRepository.findAllByWebsiteComments(pageable);
+            List<CommentResponse> commentResponses = commentPage.getContent().stream()
                     .map(this::mapToResponse)
                     .toList();
+            return new PageImpl<>(commentResponses, pageable, commentPage.getTotalElements());
         } else {
             MovieEntity movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-            return commentRepository.findAllByMovieComments(movie.getId()).stream()
+            Page<CommentEntity> commentPage = commentRepository.findAllByMovieComments(movie.getId(), pageable);
+            List<CommentResponse> commentResponses = commentPage.getContent().stream()
                     .map(this::mapToResponse)
                     .toList();
+            return new PageImpl<>(commentResponses, pageable, commentPage.getTotalElements());
         }
     }
 

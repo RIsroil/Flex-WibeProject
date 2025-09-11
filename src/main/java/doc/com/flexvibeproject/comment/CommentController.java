@@ -3,6 +3,8 @@ package doc.com.flexvibeproject.comment;
 import doc.com.flexvibeproject.comment.dto.CommentRequest;
 import doc.com.flexvibeproject.comment.dto.CommentResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
@@ -25,8 +27,8 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public List<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id) {
-        return commentService.getCommentByMovieIdOrWebsite(id);
+    public Page<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id, Pageable pageable) {
+        return commentService.getCommentByMovieIdOrWebsite(id, pageable);
     }
 
     @DeleteMapping("/{id}")
