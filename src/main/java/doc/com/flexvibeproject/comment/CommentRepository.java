@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
-    @Query("SELECT c FROM CommentEntity c WHERE (c.commentRole = doc.com.flexvibeproject.comment.CommentRole.MOVIE OR c.comment = doc.com.flexvibeproject.comment.CommentRole.REPLY) AND c.movieEntity.id = :id")
+    @Query("SELECT c FROM CommentEntity c WHERE (c.commentRole = doc.com.flexvibeproject.comment.CommentRole.MOVIE OR c.commentRole = doc.com.flexvibeproject.comment.CommentRole.REPLY) AND c.movieEntity.id = :id")
     List<CommentEntity> findAllByMovieComments(@Param("id") Long id);
 
     @Query("SELECT c FROM CommentEntity c WHERE c.commentRole = doc.com.flexvibeproject.comment.CommentRole.WEBSITE")
