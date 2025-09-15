@@ -4,7 +4,7 @@ public enum MovieGenre {
 
     TRANSLATED_MOVIES,
     PREMIER,
-    CORTON,
+    CARTOON,
     HIND_FILMS,
     JAPAN,FILMS,
     ANIME,
