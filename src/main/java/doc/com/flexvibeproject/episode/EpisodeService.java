@@ -59,7 +59,7 @@ public class EpisodeService {
         episodeRepository.save(newEpisode);
     }
 
-    public Page<EpisodeResponse> getEpisodesBySerialId(Long serialId, Pageable pageable) {
+    public List<EpisodeResponse> getEpisodesBySerialId(Long serialId) {
         MovieEntity serial = movieRepository.findById(serialId)
                 .orElseThrow(() -> new ResourceNotFoundException("Serial (Movie) not found with id: " + serialId));
 
@@ -67,13 +67,10 @@ public class EpisodeService {
             throw new InvalidInputException("Movie with id " + serialId + " is not of role SERIAL");
         }
 
-        Page<EpisodeEntity> episodePage = episodeRepository.findAllByMovieEntity(serial, pageable);
-
-        List<EpisodeResponse> episodeResponses = episodePage.getContent().stream()
+        return episodeRepository.findAllByMovieEntity(serial)
+                .stream()
                 .map(this::mapToResponse)
                 .toList();
-
-        return new PageImpl<>(episodeResponses, pageable, episodePage.getTotalElements());
     }
 
     public EpisodeResponse getEpisodeById(Long id){

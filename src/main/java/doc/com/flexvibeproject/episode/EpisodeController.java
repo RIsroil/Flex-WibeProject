@@ -21,8 +21,8 @@ public class EpisodeController {
     }
 
     @GetMapping("/by-serial/{serialId}")
-    public Page<EpisodeResponse> getEpisodesBySerial(@PathVariable Long serialId, Pageable pageable) {
-        return episodeService.getEpisodesBySerialId(serialId, pageable);
+    public List<EpisodeResponse> getEpisodesBySerial(@PathVariable Long serialId) {
+        return episodeService.getEpisodesBySerialId(serialId);
     }
 
     @GetMapping("/{id}")

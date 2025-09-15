@@ -1,6 +1,14 @@
 package doc.com.flexvibeproject.movie.role;
 
 public enum MovieGenre {
+
+    TRANSLATED_MOVIES,
+    PREMIER,
+    CORTON,
+    HIND_FILMS,
+    JAPAN,FILMS,
+    ANIME,
+
     // 🎬 FILM & SERIAL GENRES
     ACTION,
     ADVENTURE,

@@ -80,21 +80,17 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public Page<CommentResponse> getCommentByMovieIdOrWebsite(Long id, Pageable pageable) {
+    public List<CommentResponse> getCommentByMovieIdOrWebsite(Long id) {
         if (id == null) {
-            Page<CommentEntity> commentPage = commentRepository.findAllByWebsiteComments(pageable);
-            List<CommentResponse> commentResponses = commentPage.getContent().stream()
+            return commentRepository.findAllByWebsiteComments().stream()
                     .map(this::mapToResponse)
                     .toList();
-            return new PageImpl<>(commentResponses, pageable, commentPage.getTotalElements());
         } else {
             MovieEntity movie = movieRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-            Page<CommentEntity> commentPage = commentRepository.findAllByMovieComments(movie.getId(), pageable);
-            List<CommentResponse> commentResponses = commentPage.getContent().stream()
+            return commentRepository.findAllByMovieComments(movie.getId()).stream()
                     .map(this::mapToResponse)
                     .toList();
-            return new PageImpl<>(commentResponses, pageable, commentPage.getTotalElements());
         }
     }
 

@@ -27,8 +27,8 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public Page<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id, Pageable pageable) {
-        return commentService.getCommentByMovieIdOrWebsite(id, pageable);
+    public List<CommentResponse> getCommentsByMovieId(@PathVariable Long id) {
+        return commentService.getCommentByMovieIdOrWebsite(id);
     }
 
     @DeleteMapping("/{id}")

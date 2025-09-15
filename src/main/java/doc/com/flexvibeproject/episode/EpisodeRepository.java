@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface EpisodeRepository extends JpaRepository<EpisodeEntity, Long> {
     EpisodeEntity findByTitle(String title);
     EpisodeEntity findByEpisodeNumberAndSeason(int episode,int season);
-    Page<EpisodeEntity> findAllByMovieEntity(MovieEntity movie, Pageable pageable);
+    List<EpisodeEntity> findAllByMovieEntity(MovieEntity movie);
 
     int countByMovieEntityAndCreatedDateAfter(@Param("movie") MovieEntity movie, @Param("since") LocalDateTime since);
 
