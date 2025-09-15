@@ -26,9 +26,9 @@ public class CommentController {
         commentService.updateComment(principal, id, request);
     }
 
-    @GetMapping("/{movie_id}")
-    public List<CommentResponse> getCommentsByMovieId(@PathVariable Long movie_id) {
-        return commentService.getCommentByMovieIdOrWebsite(movie_id);
+    @GetMapping("/{id}")
+    public List<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id) {
+        return commentService.getCommentByMovieIdOrWebsite(id);
     }
 
     @DeleteMapping("/{id}")

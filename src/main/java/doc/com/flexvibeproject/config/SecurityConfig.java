@@ -63,7 +63,8 @@ public class SecurityConfig {
                                 "/api/save-movie/**",
                                 "/api/movie/**",
                                 "/api/episode/**",
-                                "/api/comment/**",
+                                "/api/comment/{id}",
+                                "/api/comment/{count}",
                                 "/api/minio/movie/**",
                                 "/api/minio/stream/**",
                                 "/api/minio/proxy/**"
