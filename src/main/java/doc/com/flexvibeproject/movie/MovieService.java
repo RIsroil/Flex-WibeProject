@@ -597,4 +597,13 @@ public class MovieService {
 
         return new TotalContentCountsResponse(filmCount, serialSummary, concertCount);
     }
+
+    public Page<MovieResponse> getAllByPremier(Pageable pageable) {
+        Page<MovieEntity> page = movieRepository.findByPremiere(true, pageable);
+        List<MovieResponse> premierMovies = page.getContent().stream()
+                .map(this::mapToResponse)
+                .sorted(Comparator.comparing(MovieResponse::getReleaseDateLocal).reversed())
+                .toList();
+        return new PageImpl<>(premierMovies, pageable, page.getTotalElements());
+    }
 }

@@ -117,4 +117,9 @@ public class MovieController {
         TotalContentCountsResponse response = movieService.getTotalContentCounts();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/premier")
+    public Page<MovieResponse> getPremierMovies(Pageable pageable) {
+        return movieService.getAllByPremier(pageable);
+    }
 }

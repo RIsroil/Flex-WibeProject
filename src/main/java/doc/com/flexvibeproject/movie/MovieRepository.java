@@ -45,4 +45,5 @@ public interface MovieRepository extends JpaRepository<MovieEntity, Long>, JpaSp
 
     int countByMovieRole(@Param("role") MovieRole role);
 
+    Page<MovieEntity> findByPremiere(boolean premiere, Pageable pageable);
 }
