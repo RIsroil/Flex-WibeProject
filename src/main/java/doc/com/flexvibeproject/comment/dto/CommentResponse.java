@@ -15,6 +15,7 @@ public class CommentResponse {
     private String username;
     private CommentRole commentRole;
     private LocalDateTime commentDate;
+    private Long parentCommentId;
 
     private Long movieId;
     private int like;

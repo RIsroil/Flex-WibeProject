@@ -128,6 +128,7 @@ public class CommentService {
                 .commentRole(commentEntity.getCommentRole())
                 .commentDate(commentEntity.getCommentDate())
                 .like(commentEntity.getLikeCount())
+                .parentCommentId(commentEntity.getParentComment().getId())
                 .build();
     }
 }
