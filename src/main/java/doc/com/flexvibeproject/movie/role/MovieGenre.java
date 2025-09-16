@@ -8,6 +8,9 @@ public enum MovieGenre {
     HIND_FILMS,
     JAPAN,FILMS,
     ANIME,
+    FILM,
+    SERIAL,
+    CONCERT,
 
     // 🎬 FILM & SERIAL GENRES
     ACTION,

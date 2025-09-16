@@ -109,7 +109,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_PROFILES_ACTIVE: production
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
       MINIO_ENDPOINT: http://minio-flex:9000
       MINIO_PUBLIC_ENDPOINT: https://be-dev.uz
