@@ -85,13 +85,12 @@ public class CommentService {
             return commentRepository.findAllByWebsiteComments().stream()
                     .map(this::mapToResponse)
                     .toList();
-        } else {
-            MovieEntity movie = movieRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
-            return commentRepository.findAllByMovieComments(movie.getId()).stream()
-                    .map(this::mapToResponse)
-                    .toList();
         }
+        return movieRepository.findById(id)
+                .map(movie -> commentRepository.findAllByMovieComments(id).stream()
+                        .map(this::mapToResponse)
+                        .toList())
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
     }
 
     @Transactional
@@ -128,7 +127,7 @@ public class CommentService {
                 .commentRole(commentEntity.getCommentRole())
                 .commentDate(commentEntity.getCommentDate())
                 .like(commentEntity.getLikeCount())
-                .parentCommentId(commentEntity.getParentComment().getId())
+                .parentCommentId(commentEntity.getParentComment() != null ? commentEntity.getParentComment().getId() : null)
                 .build();
     }
 }
