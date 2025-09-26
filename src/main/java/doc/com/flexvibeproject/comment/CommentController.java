@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.security.Principal;
 import java.util.List;
 
@@ -17,16 +18,29 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{id}")
-    public void addComment(Principal principal, @PathVariable(required = false) Long id, @RequestBody CommentRequest request, @RequestParam CommentRole role) {
+    public ResponseEntity<String> addComment(
+            Principal principal,
+            @PathVariable(required = false) Long id,
+            @RequestBody CommentRequest request,
+            @RequestParam CommentRole role) {
         commentService.postComment(principal, id, request, role);
+        return ResponseEntity.ok("Comment added successfully");
     }
 
     @PutMapping("/{id}")
-    public void updateComment(Principal principal, @PathVariable Long id, @RequestBody CommentRequest request) {
+    public ResponseEntity<String> updateComment(
+            Principal principal,
+            @PathVariable Long id,
+            @RequestBody CommentRequest request) {
         commentService.updateComment(principal, id, request);
+        return ResponseEntity.ok("Comment updated successfully");
     }
 
-    // New paginated endpoint for movie comments
+    /**
+     * Get paginated top-level comments for a movie
+     * Returns only direct comments on movie (not replies)
+     * Each comment includes replyCount field
+     */
     @GetMapping("/movie/{movieId}")
     public ResponseEntity<Page<CommentResponse>> getMovieComments(
             @PathVariable Long movieId,
@@ -35,7 +49,11 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    // New paginated endpoint for replies to a comment
+    /**
+     * Get paginated replies for a specific comment
+     * Can be called recursively for nested replies
+     * Each reply also includes replyCount for its own sub-replies
+     */
     @GetMapping("/replies/{parentCommentId}")
     public ResponseEntity<Page<CommentResponse>> getReplies(
             @PathVariable Long parentCommentId,
@@ -44,15 +62,32 @@ public class CommentController {
         return ResponseEntity.ok(replies);
     }
 
+    /**
+     * Post a reply to an existing comment
+     */
+    @PostMapping("/reply/{parentCommentId}")
+    public ResponseEntity<String> addReply(
+            Principal principal,
+            @PathVariable Long parentCommentId,
+            @RequestBody CommentRequest request) {
+        commentService.postComment(principal, parentCommentId, request, CommentRole.REPLY);
+        return ResponseEntity.ok("Reply added successfully");
+    }
+
     // Keep the old endpoint for backward compatibility
     @GetMapping("/{id}")
-    public List<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id) {
-        return commentService.getCommentByMovieIdOrWebsite(id);
+    public ResponseEntity<List<CommentResponse>> getCommentsByMovieId(
+            @PathVariable(required = false) Long id) {
+        List<CommentResponse> comments = commentService.getCommentByMovieIdOrWebsite(id);
+        return ResponseEntity.ok(comments);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCommentById(Principal principal, @PathVariable Long id) {
+    public ResponseEntity<String> deleteCommentById(
+            Principal principal,
+            @PathVariable Long id) {
         commentService.deleteCommentById(principal, id);
+        return ResponseEntity.ok("Comment deleted successfully");
     }
 
     @GetMapping("/count")

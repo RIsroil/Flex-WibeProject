@@ -10,6 +10,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.S3Configuration;
 
 
 import java.net.URI;
@@ -36,11 +37,17 @@ public class WasabiConfig {
         AwsBasicCredentials creds = AwsBasicCredentials.create(accessKey, secretKey);
 
 
+        // Wasabi-specific configuration
+        S3Configuration s3Config = S3Configuration.builder()
+                .pathStyleAccessEnabled(true)  // Important for Wasabi
+                .build();
+
+
         return S3Presigner.builder()
                 .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(creds))
-// Wasabi doesn't require a real AWS region; use any valid Region
-                .region(Region.US_EAST_1)
+                .region(Region.US_EAST_1)  // Wasabi uses us-east-1 as default
+                .serviceConfiguration(s3Config)
                 .build();
     }
 }
