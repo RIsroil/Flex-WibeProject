@@ -5,6 +5,7 @@ import doc.com.flexvibeproject.episode.dto.EpisodeResponse;
 import doc.com.flexvibeproject.exception.DuplicateResourceException;
 import doc.com.flexvibeproject.exception.InvalidInputException;
 import doc.com.flexvibeproject.exception.ResourceNotFoundException;
+import doc.com.flexvibeproject.minio.StorageService;
 import doc.com.flexvibeproject.movie.MovieEntity;
 import doc.com.flexvibeproject.movie.MovieRepository;
 import doc.com.flexvibeproject.movie.role.MovieRole;
@@ -24,6 +25,7 @@ import java.util.List;
 public class EpisodeService {
     private final EpisodeRepository episodeRepository;
     private final MovieRepository movieRepository;
+    private final StorageService storageService;
 
     public void createEpisode(Long id, EpisodeRequest request){
         MovieEntity movie = movieRepository.findById(id)
@@ -116,7 +118,7 @@ public class EpisodeService {
         return EpisodeResponse.builder()
                 .id(e.getId())
                 .title(e.getTitle())
-                .filePath(e.getFilePath())
+                .filePath(storageService.generatePresignedUrl(e.getFilePath()))
                 .duration(e.getDuration())
                 .season(e.getSeason())
                 .episodeNumber(e.getEpisodeNumber())

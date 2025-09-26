@@ -5,6 +5,7 @@ import doc.com.flexvibeproject.episode.EpisodeRepository;
 import doc.com.flexvibeproject.exception.DuplicateResourceException;
 import doc.com.flexvibeproject.exception.InvalidInputException;
 import doc.com.flexvibeproject.exception.ResourceNotFoundException;
+import doc.com.flexvibeproject.minio.StorageService;
 import doc.com.flexvibeproject.movie.dto.*;
 import doc.com.flexvibeproject.movie.role.CountryType;
 import doc.com.flexvibeproject.movie.role.LanguageType;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 public class MovieService {
     private final MovieRepository movieRepository;
     private final EpisodeRepository episodeRepository;
-
+    private final StorageService storageService;
 
     public void createMovie(MovieRequest request) {
         if (request.getTitle() == null || request.getTitle().isBlank()) {
@@ -543,9 +544,9 @@ public class MovieService {
                 .id(movie.getId())
                 .title(movie.getTitle())
                 .description(movie.getDescription())
-                .filePath(movie.getFilePath())
-                .trailerPath(movie.getTrailerPath())
-                .imageUrl(movie.getImageUrl())
+                .filePath(storageService.generatePresignedUrl(movie.getFilePath()))
+                .trailerPath(storageService.generatePresignedUrl(movie.getTrailerPath()))
+                .imageUrl(storageService.generatePresignedUrl(movie.getImageUrl()))
                 .genres(movie.getGenres())
                 .country(movie.getCountry())
                 .releaseYear(movie.getReleaseYear())
