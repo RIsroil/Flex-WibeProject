@@ -64,6 +64,6 @@ public class MinioService {
                             .build()
             );
         }
-        return getPermanentUrl(fileName);
+        return fileName;
     }
 }
