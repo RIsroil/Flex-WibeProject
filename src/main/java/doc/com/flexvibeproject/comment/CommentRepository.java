@@ -16,8 +16,20 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     @Query("SELECT c FROM CommentEntity c WHERE c.commentRole = doc.com.flexvibeproject.comment.CommentRole.WEBSITE")
     List<CommentEntity> findAllByWebsiteComments();
 
+    // Paginated queries for movie comments (only top-level comments)
+    @Query("SELECT c FROM CommentEntity c WHERE c.commentRole = doc.com.flexvibeproject.comment.CommentRole.MOVIE AND c.movieEntity.id = :movieId AND c.parentComment IS NULL")
+    Page<CommentEntity> findTopLevelCommentsByMovieId(@Param("movieId") Long movieId, Pageable pageable);
+
+    // Find replies to a specific comment
+    @Query("SELECT c FROM CommentEntity c WHERE c.parentComment.id = :parentCommentId")
+    Page<CommentEntity> findRepliesByParentCommentId(@Param("parentCommentId") Long parentCommentId, Pageable pageable);
+
     int countAllByMovieEntity(MovieEntity movie);
 
     @Query("SELECT COUNT(c) FROM CommentEntity c WHERE c.parentComment = :comment")
     int countAllByParentComment(@Param("comment") CommentEntity comment);
+
+    // Count replies by parent comment ID
+    @Query("SELECT COUNT(c) FROM CommentEntity c WHERE c.parentComment.id = :parentCommentId")
+    int countRepliesByParentCommentId(@Param("parentCommentId") Long parentCommentId);
 }

@@ -26,6 +26,25 @@ public class CommentController {
         commentService.updateComment(principal, id, request);
     }
 
+    // New paginated endpoint for movie comments
+    @GetMapping("/movie/{movieId}")
+    public ResponseEntity<Page<CommentResponse>> getMovieComments(
+            @PathVariable Long movieId,
+            Pageable pageable) {
+        Page<CommentResponse> comments = commentService.getMovieCommentsPaginated(movieId, pageable);
+        return ResponseEntity.ok(comments);
+    }
+
+    // New paginated endpoint for replies to a comment
+    @GetMapping("/replies/{parentCommentId}")
+    public ResponseEntity<Page<CommentResponse>> getReplies(
+            @PathVariable Long parentCommentId,
+            Pageable pageable) {
+        Page<CommentResponse> replies = commentService.getRepliesPaginated(parentCommentId, pageable);
+        return ResponseEntity.ok(replies);
+    }
+
+    // Keep the old endpoint for backward compatibility
     @GetMapping("/{id}")
     public List<CommentResponse> getCommentsByMovieId(@PathVariable(required = false) Long id) {
         return commentService.getCommentByMovieIdOrWebsite(id);

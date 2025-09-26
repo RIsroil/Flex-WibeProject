@@ -19,4 +19,5 @@ public class CommentResponse {
 
     private Long movieId;
     private int like;
+    private int replyCount; // Number of replies to this comment
 }

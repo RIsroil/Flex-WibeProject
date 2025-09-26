@@ -118,6 +118,31 @@ public class CommentService {
         }
     }
 
+    public Page<CommentResponse> getMovieCommentsPaginated(Long movieId, Pageable pageable) {
+        if (movieId == null) {
+            throw new InvalidInputException("Movie ID is required");
+        }
+
+        MovieEntity movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found"));
+
+        Page<CommentEntity> comments = commentRepository.findTopLevelCommentsByMovieId(movieId, pageable);
+        return comments.map(this::mapToResponseWithReplyCount);
+    }
+
+    public Page<CommentResponse> getRepliesPaginated(Long parentCommentId, Pageable pageable) {
+        if (parentCommentId == null) {
+            throw new InvalidInputException("Parent comment ID is required");
+        }
+
+        // Verify parent comment exists
+        commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Parent comment not found"));
+
+        Page<CommentEntity> replies = commentRepository.findRepliesByParentCommentId(parentCommentId, pageable);
+        return replies.map(this::mapToResponseWithReplyCount);
+    }
+
     private CommentResponse mapToResponse(CommentEntity commentEntity) {
         return CommentResponse.builder()
                 .id(commentEntity.getId())
@@ -128,6 +153,22 @@ public class CommentService {
                 .commentDate(commentEntity.getCommentDate())
                 .like(commentEntity.getLikeCount())
                 .parentCommentId(commentEntity.getParentComment() != null ? commentEntity.getParentComment().getId() : null)
+                .build();
+    }
+
+    private CommentResponse mapToResponseWithReplyCount(CommentEntity commentEntity) {
+        int replyCount = commentRepository.countRepliesByParentCommentId(commentEntity.getId());
+
+        return CommentResponse.builder()
+                .id(commentEntity.getId())
+                .movieId(commentEntity.getMovieEntity() != null ? commentEntity.getMovieEntity().getId() : null)
+                .comment(commentEntity.getComment())
+                .username(commentEntity.getUser().getUsername())
+                .commentRole(commentEntity.getCommentRole())
+                .commentDate(commentEntity.getCommentDate())
+                .like(commentEntity.getLikeCount())
+                .parentCommentId(commentEntity.getParentComment() != null ? commentEntity.getParentComment().getId() : null)
+                .replyCount(replyCount)
                 .build();
     }
 }
