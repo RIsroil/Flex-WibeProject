@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,26 +16,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "minio")
 public class MinioConfig {
+    @Value("${minio.endpoint}")
     private String endpoint;
-    private String publicEndpoint;
-    private String accessKey;
-    private String secretKey;
-    private String bucketName;
 
-    @PostConstruct
-    public void init() {
-        log.info("MinIO Config - Endpoint: {}, Public Endpoint: {}", endpoint, publicEndpoint);
-    }
+    @Value("${minio.public-endpoint}")
+    private String publicEndpoint;
+
+    @Value("${minio.access-key}")
+    private String accessKey;
+
+    @Value("${minio.secret-key}")
+    private String secretKey;
 
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint) // Use internal endpoint (http://minio-flex:9000)
+                .endpoint(endpoint)
                 .credentials(accessKey, secretKey)
                 .build();
-    }
-
-    public String getPublicEndpoint() {
-        return publicEndpoint; // Returns https://be-dev.uz
     }
 }

@@ -32,9 +32,9 @@ public class MinioService {
         if (endpoint.endsWith("/")) {
             endpoint = endpoint.substring(0, endpoint.length() - 1);
         }
-        // Direct public link (no /minio/)
         return endpoint + "/" + bucketName + "/" + fileName;
     }
+
 
 
     public ResponseEntity<?> uploadVideo(MultipartFile file) {
