@@ -20,8 +20,8 @@ services:
       # ⚠️ Wasabi endpoint va kalitlari
       MINIO_ENDPOINT: https://s3.wasabisys.com
       MINIO_PUBLIC_ENDPOINT: https://s3.wasabisys.com
-      MINIO_ACCESS_KEY: <B4XHGTU85BLQ53S83RS2>
-      MINIO_SECRET_KEY: <IllGMvbzrQAOgctJ7U6e8KbZvHNkflXzuVcjKTJt>
+      MINIO_ACCESS_KEY: B4XHGTU85BLQ53S83RS2
+      MINIO_SECRET_KEY: IllGMvbzrQAOgctJ7U6e8KbZvHNkflXzuVcjKTJt
       MINIO_BUCKET_NAME: flex-bucket
     depends_on:
       - flexvibe-db
