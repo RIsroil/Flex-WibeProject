@@ -37,7 +37,7 @@ public class WasabiConfig {
         AwsBasicCredentials creds = AwsBasicCredentials.create(accessKey, secretKey);
 
 
-        // Wasabi-specific configuration
+        // Wasabi-specific configuration - disable path style for presigned URLs
         S3Configuration s3Config = S3Configuration.builder()
                 .pathStyleAccessEnabled(true)  // Important for Wasabi
                 .build();

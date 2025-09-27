@@ -36,7 +36,7 @@ public class StorageService {
                     .key(objectKey)
                     .build();
 
-            // Use shorter expiry for testing - 1 hour
+            // Use 24 hours expiry for presigned URLs
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .signatureDuration(Duration.ofHours(24))
                     .getObjectRequest(getObjectRequest)
