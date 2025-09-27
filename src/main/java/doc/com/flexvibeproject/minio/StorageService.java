@@ -38,7 +38,7 @@ public class StorageService {
 
             // Use shorter expiry for testing - 1 hour
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofHours(1))
+                    .signatureDuration(Duration.ofHours(24))
                     .getObjectRequest(getObjectRequest)
                     .build();
 
