@@ -33,7 +33,6 @@ public class EpisodeService {
         EpisodeEntity existingByEpisodeNumber = episodeRepository.findByEpisodeNumberAndSeason(request.getEpisodeNumber(), request.getSeason());
 
         if (movie.getMovieRole() != MovieRole.SERIAL) {throw new InvalidInputException("This Movie is not a Serial");}
-        if (episodeRepository.findByTitle(request.getTitle()) != null) {throw new DuplicateResourceException("This title is already taken");}
         if (request.getSeason() == null || request.getEpisodeNumber() == null) {throw new InvalidInputException("Season and Episode number are required");}
         if (request.getDuration() == null) {throw new InvalidInputException("Duration is required");}
         if (request.getFilePath() == null) {throw new InvalidInputException("File path is required");}
@@ -86,10 +85,6 @@ public class EpisodeService {
         EpisodeEntity episode = episodeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Episode not found"));
 
-        EpisodeEntity existing = episodeRepository.findByTitle(request.getTitle());
-        if (existing != null && !existing.getId().equals(episode.getId())) {
-            throw new DuplicateResourceException("Title already exists");
-        }
         if (request.getTitle() != null) {episode.setTitle(request.getTitle());}
         if (request.getFilePath() != null) {episode.setFilePath(request.getFilePath());}
         if (request.getSeason() != null) {episode.setSeason(request.getSeason());}

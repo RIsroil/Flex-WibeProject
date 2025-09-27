@@ -15,7 +15,7 @@ import java.util.Map;
 @Service
 public class JwtService {
     private final String secret = "2lVo5TcjgTco3dUIwmYEIWcLfeiBR7QgjS9fFyn1Jdg="; // 256-bit for HS256
-    private final long accessTokenExpiration = 1000 * 60 * 15; // 15 min
+    private final long accessTokenExpiration = 1000 * 60 * 60; // 60 min
     private final long refreshTokenExpiration = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     private Key getSignInKey() {

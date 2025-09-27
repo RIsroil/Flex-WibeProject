@@ -38,10 +38,6 @@ public class MovieService {
             throw new InvalidInputException("Title is required");
         }
 
-        if (movieRepository.findByTitle(request.getTitle()) != null) {
-            throw new DuplicateResourceException("This title is already taken");
-        }
-
         if (request.getMovieRole() == null) {
             throw new InvalidInputException("Movie role is required");
         }
