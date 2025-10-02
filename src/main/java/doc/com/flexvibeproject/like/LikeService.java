@@ -30,10 +30,10 @@ public class LikeService {
     private final AuthHelperService authHelperService;
 
     @Transactional
-    public void toggleLike(Long movieId,
-                           Long episodeId,
-                           Long commentId,
-                           Principal principal) {
+    public boolean toggleLike(Long movieId,
+                              Long episodeId,
+                              Long commentId,
+                              Principal principal) {
 
         UserEntity user = authHelperService.getUserFromPrincipal(principal);
 
@@ -42,7 +42,7 @@ public class LikeService {
                 .filter(Objects::nonNull)
                 .count();
         if (nonNullCount != 1) {
-            throw new IllegalArgumentException("Like faqat Movie, Episode yoki Comment uchun bo‘lishi kerak (faqat bittasi).");
+            throw new IllegalArgumentException("Like faqat Movie, Episode yoki Comment uchun bo'lishi kerak (faqat bittasi).");
         }
 
         if (movieId != null) {
@@ -51,59 +51,67 @@ public class LikeService {
             if(movie.getMovieRole() == MovieRole.SERIAL) {
                 throw new IllegalArgumentException("You can not like SERIAL");
             }
-            toggleMovieLike(user, movie);
+            boolean isLiked = toggleMovieLike(user, movie);
             movieRepository.save(movie);
-            return;
+            return isLiked;
         }
 
         // 3) Episode like / unlike
         if (episodeId != null) {
             EpisodeEntity episode = episodeRepository.findById(episodeId)
                     .orElseThrow(() -> new ResourceNotFoundException("Episode not found"));
-            toggleEpisodeLike(user, episode);
+            boolean isLiked = toggleEpisodeLike(user, episode);
             episodeRepository.save(episode);
-            return;
+            return isLiked;
         }
 
         // 4) Comment like / unlike
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
-        toggleCommentLike(user, comment);
+        boolean isLiked = toggleCommentLike(user, comment);
         commentRepository.save(comment);
+        return isLiked;
     }
 
-    /* ---------- Private helpers ---------- */
-
-    private void toggleMovieLike(UserEntity user, MovieEntity movie) {
-        likeRepository.findByUserAndMovie(user, movie).ifPresentOrElse(existing -> {
+    private boolean toggleMovieLike(UserEntity user, MovieEntity movie) {
+        Optional<LikeEntity> existingLike = likeRepository.findByUserAndMovie(user, movie);
+        if (existingLike.isPresent()) {
             movie.setLikeCount(movie.getLikeCount() - 1);
-            likeRepository.delete(existing);
-        }, () -> {
+            likeRepository.delete(existingLike.get());
+            return false;
+        } else {
             movie.setLikeCount(movie.getLikeCount() + 1);
             likeRepository.save(LikeEntity.builder()
                     .user(user).movie(movie).episode(null).comment(null).build());
-        });
+            return true;
+        }
     }
 
-    private void toggleEpisodeLike(UserEntity user, EpisodeEntity episode) {
-        likeRepository.findByUserAndEpisode(user, episode).ifPresentOrElse(existing -> {
+    private boolean toggleEpisodeLike(UserEntity user, EpisodeEntity episode) {
+        Optional<LikeEntity> existingLike = likeRepository.findByUserAndEpisode(user, episode);
+        if (existingLike.isPresent()) {
             episode.setLikeCount(episode.getLikeCount() - 1);
-            likeRepository.delete(existing);
-        }, () -> {
+            likeRepository.delete(existingLike.get());
+            return false;
+        } else {
             episode.setLikeCount(episode.getLikeCount() + 1);
             likeRepository.save(LikeEntity.builder()
                     .user(user).movie(null).episode(episode).comment(null).build());
-        });
+            return true;
+        }
     }
 
-    private void toggleCommentLike(UserEntity user, CommentEntity comment) {
-        likeRepository.findByUserAndComment(user, comment).ifPresentOrElse(existing -> {
+    private boolean toggleCommentLike(UserEntity user, CommentEntity comment) {
+        Optional<LikeEntity> existingLike = likeRepository.findByUserAndComment(user, comment);
+        if (existingLike.isPresent()) {
             comment.setLikeCount(comment.getLikeCount() - 1);
-            likeRepository.delete(existing);
-        }, () -> {
+            likeRepository.delete(existingLike.get());
+            return false;
+        } else {
             comment.setLikeCount(comment.getLikeCount() + 1);
             likeRepository.save(LikeEntity.builder()
                     .user(user).movie(null).episode(null).comment(comment).build());
-        });
+            return true;
+        }
     }
 }
