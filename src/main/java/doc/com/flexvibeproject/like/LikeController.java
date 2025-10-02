@@ -12,7 +12,7 @@ public class LikeController {
     private final LikeService likeService;
 
     @PutMapping()
-    public void like(@RequestParam(required = false) Long movieId,
+    public boolean like(@RequestParam(required = false) Long movieId,
                      @RequestParam(required = false) Long episodeId,
                      @RequestParam(required = false) Long commentId,
                      Principal principal) {
