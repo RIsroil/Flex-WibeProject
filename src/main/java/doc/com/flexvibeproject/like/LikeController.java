@@ -16,6 +16,6 @@ public class LikeController {
                      @RequestParam(required = false) Long episodeId,
                      @RequestParam(required = false) Long commentId,
                      Principal principal) {
-        likeService.toggleLike(movieId,episodeId, commentId,  principal);
+        return likeService.toggleLike(movieId,episodeId, commentId,  principal);
     }
 }
