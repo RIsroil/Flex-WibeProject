@@ -1,39 +1,10 @@
 version: '3.8'
 
 services:
-  flexvibe-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: flexvibe-app
-    image: flexvibe-backend:latest
-    restart: always
-    ports:
-      - "8081:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://flexvibe-db:5432/flexvibe
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_PROFILES_ACTIVE: production
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-
-      # ⚠️ Wasabi endpoint va kalitlari
-      MINIO_ENDPOINT: https://s3.wasabisys.com
-      MINIO_PUBLIC_ENDPOINT: https://s3.wasabisys.com
-      MINIO_ACCESS_KEY: B4XHGTU85BLQ53S83RS2
-      MINIO_SECRET_KEY: IllGMvbzrQAOgctJ7U6e8KbZvHNkflXzuVcjKTJt
-      MINIO_BUCKET_NAME: flex-bucket
-    depends_on:
-      - flexvibe-db
-    networks:
-      - flexvibe-network
-    volumes:
-      - ./src/main/resources/logs:/app/logs
-
   flexvibe-db:
     image: postgres:16-alpine
     container_name: flexvibe-db
-    restart: always
+    restart: unless-stopped
     ports:
       - "5434:5432"
     environment:
@@ -42,6 +13,42 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - flexvibe_data:/var/lib/postgresql/data
+    networks:
+      - flexvibe-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d flexvibe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  flexvibe-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flexvibe-backend:latest
+    container_name: flexvibe-app
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      flexvibe-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://flexvibe-db:5432/flexvibe
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: production
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # Wasabi (S3 mosligi bilan)
+      MINIO_ENDPOINT: https://s3.wasabisys.com
+      MINIO_PUBLIC_ENDPOINT: https://s3.wasabisys.com
+      MINIO_ACCESS_KEY: B4XHGTU85BLQ53S83RS2
+      MINIO_SECRET_KEY: IllGMvbzrQAOgctJ7U6e8KbZvHNkflXzuVcjKTJt
+      MINIO_BUCKET_NAME: flex-bucket
+
+    volumes:
+      - ./src/main/resources/logs:/app/logs
     networks:
       - flexvibe-network
 
